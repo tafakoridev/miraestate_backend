@@ -19,10 +19,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Install Laravel dependencies
 RUN composer install --no-scripts --no-autoloader
-RUN php artisan migrate
+
 # Copy the application files to the container
 COPY . /var/www
-
+RUN php artisan migrate
 # Generate the autoload files and optimize
 RUN composer dump-autoload --optimize
 
