@@ -1,43 +1,79 @@
-version: '3'
+version: "3.9"
+
+networks:
+    laravel:
+        name: laravel
 
 services:
-  # Laravel Application
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: miraestate-backend
-    container_name: miraestate-backend
-    restart: unless-stopped
-    working_dir: /var/www
-    volumes:
-      - .:/var/www
-    environment:
-      - "DB_CONNECTION=mysql"
-      - "DB_HOST=mysql"
-      - "DB_PORT=3306"
-      - "DB_DATABASE=miraestate"
-      - "DB_USERNAME=mira"
-      - "DB_PASSWORD=7578808757#Ramz"
-    depends_on:
-      - mysql
-    ports:
-      - "9000:9000"  # Add this line to map port 9000 on the host to port 9000 in the container
 
-  # MySQL Database
-  mysql:
-    image: mysql:5.7
-    container_name: mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: miraestate
-      MYSQL_ROOT_PASSWORD: "Ramz#7578808757"
-      MYSQL_USER: "mira"
-      MYSQL_PASSWORD: "7578808757#Ramz"
-    ports:
-      - "3307:3306"
-    volumes:
-      - db-data:/var/lib/mysql
+    nginx:
+        build:
+            context: .
+            dockerfile: nginx.dockerfile
+        depends_on:
+            - php
+            - mysql
+        container_name: nginx
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./src:/var/www/html
+        networks:
+            - laravel
 
-volumes:
-  db-data:
+    php:
+        build:
+            context: .
+            dockerfile: php.dockerfile
+        container_name: php
+        volumes:
+            - ./src:/var/www/html
+        networks:
+            - laravel
+
+    mysql:
+        image: mysql:8.0.27
+        container_name: mysql
+        ports:
+            - 3306:3306
+        volumes:
+            - ./mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: laraveldb
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: secret
+        networks:
+            - laravel
+
+    composer:
+        image: composer:latest
+        container_name: composer
+        volumes:
+            - ./src:/var/www/html
+        working_dir: /var/www/html
+        networks:
+            - laravel
+
+    artisan:
+        build:
+            context: .
+            dockerfile: php.dockerfile
+        container_name: artisan
+        volumes:
+            - ./src:/var/www/html
+        working_dir: /var/www/html
+        entrypoint: ['php', 'artisan']
+        networks:
+            - laravel
+
+    npm:
+        image: node:current-alpine
+        container_name: npm
+        volumes:
+            - ./src:/var/www/html
+        working_dir: /var/www/html
+        entrypoint: ['npm']
+        networks:
+            - laravel
