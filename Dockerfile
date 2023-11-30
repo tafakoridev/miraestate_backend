@@ -22,10 +22,10 @@ RUN composer install
 
 # Copy the application files to the container
 COPY . /var/www
-RUN php artisan migrate
 # Generate the autoload files and optimize
 RUN composer dump-autoload --optimize
 
+RUN php artisan migrate
 # Set up permissions for Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
