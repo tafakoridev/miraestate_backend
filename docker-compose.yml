@@ -35,7 +35,7 @@ services:
       MYSQL_USER: "mira"
       MYSQL_PASSWORD: "7578808757#Ramz"
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db-data:/var/lib/mysql
 
