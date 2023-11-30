@@ -33,20 +33,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/checkcode', [AuthController::class, 'checkCode']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/commodities/bycity/list/{city_id}', [CommodityController::class, 'indexByCity']);
+Route::resource('categories', CategoryController::class);
+Route::resource('departments', DepartmentController::class);
+Route::resource('provinces', ProvinceController::class);
+Route::resource('cities', CityController::class);
+
+Route::resource('auctions', AuctionController::class)->middleware('auth:sanctum')->except(['index', 'show']);
+Route::resource('tenders', TenderController::class)->except(['index', 'show']);;
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
     Route::get('/users/agents/in', [UserController::class, 'agentsIn']);
     Route::get('/users/agents/list', [UserController::class, 'agents']);
-    Route::get('/commodities/bycity/list/{city_id}', [CommodityController::class, 'indexByCity']);
+   
     Route::post('/users/role/set', [UserController::class, 'setRole']);
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
-    Route::resource('auctions', AuctionController::class);
-    Route::resource('tenders', TenderController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('departments', DepartmentController::class);
-    Route::resource('provinces', ProvinceController::class);
-    Route::resource('cities', CityController::class);
+ 
+  
+ 
     Route::resource('commodities', CommodityController::class);
     Route::post('commodities/update/{id}', [CommodityController::class, 'update']);
 });
