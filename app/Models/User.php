@@ -43,11 +43,32 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function city() {
+    public function city()
+    {
         return $this->belongsTo(City::class);
     }
 
-    public function education() {
+    public function education()
+    {
         return $this->hasMany(Education::class);
+    }
+
+    public function agentExpertises()
+    {
+        return $this->hasMany(AgentExpertise::class, 'expertiese_id');
+    }
+
+    public function categoryExpertises()
+    {
+        return $this->agentExpertises()->where(function ($query) {
+            $query->where('field_type', '=', "App\\Models\\Category");
+        });
+    }
+
+    public function departmentExpertises()
+    {
+        return $this->agentExpertises()->where(function ($query) {
+            $query->where('field_type', '=', "App\\Models\\Department");
+        });
     }
 }

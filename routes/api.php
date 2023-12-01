@@ -34,16 +34,19 @@ Route::post('/checkcode', [AuthController::class, 'checkCode']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/commodities/bycity/list/{city_id}', [CommodityController::class, 'indexByCity']);
+
 Route::resource('categories', CategoryController::class);
 Route::resource('departments', DepartmentController::class);
 Route::resource('provinces', ProvinceController::class);
 Route::resource('cities', CityController::class);
 
-
 Route::get('/auctions', [AuctionController::class, 'index']);
 Route::get('/auctions/{id}', [AuctionController::class, 'show']);
 Route::get('/tenders', [TenderController::class, 'index']);
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
+Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
+Route::get('/users/{id}', [UserController::class, 'show']);
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
     Route::get('/users/agents/in', [UserController::class, 'agentsIn']);

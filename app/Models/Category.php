@@ -12,4 +12,9 @@ class Category extends Model
     protected $fillable = [
         'title'
     ];
+
+    public function agentExpertises()
+    {
+        return $this->morphMany(AgentExpertise::class, 'field');
+    }
 }

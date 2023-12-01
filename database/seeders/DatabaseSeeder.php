@@ -2,8 +2,15 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\AgentExpertise;
+use App\Models\Auction;
+use App\Models\Category;
+use App\Models\Commodity;
+use App\Models\Department;
+use App\Models\Province;
+use App\Models\Tender;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +19,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Seed users
+        User::factory()->count(12)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+ 
+
+  
+
+        // Seed categories
+        Category::factory()->count(12)->create();
+
+      
+
+        // Seed departments
+        Department::factory()->count(12)->create();
+  // Seed commodities
+  Commodity::factory()->count(12)->create();
+      // Seed auctions
+      Auction::factory()->count(12)->create();
+        // Seed tenders
+        Tender::factory()->count(12)->create();
+               // Seed agent expertises
+               AgentExpertise::factory()->count(12)->create();
     }
 }

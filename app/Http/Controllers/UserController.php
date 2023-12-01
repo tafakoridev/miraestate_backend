@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgentDesk;
+use App\Models\AgentExpertise;
 use App\Models\Auction;
+use App\Models\Category;
 use App\Models\Commodity;
+use App\Models\Department;
 use App\Models\Tender;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,6 +21,11 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with(['city', 'education'])->get();
+        return $users;
+    }
+
+    public function agentList(){
+        $users = User::where('role', 'agent')->with(['city', 'education', 'departmentExpertises.field', 'categoryExpertises.field'])->get();
         return $users;
     }
 
@@ -51,10 +59,26 @@ class UserController extends Controller
     public function setRole(Request $request)
     {
         $user = $request->user();
+        $categories = $request->categories;
+        $departments = $request->departments;
+        foreach ($categories as $key => $category_id) {
+            $category = Category::find($category_id);
+            $agentExpertise = new AgentExpertise();
+            $agentExpertise->expertiese_id = $user->id;
+            $agentExpertise->field()->associate($category);
+            $agentExpertise->save();
+        }
+
+        foreach ($departments as $key => $department_id) {
+            $department = Department::find($department_id);
+            $agentExpertise = new AgentExpertise();
+            $agentExpertise->expertiese_id = $user->id;
+            $agentExpertise->field()->associate($department);
+            $agentExpertise->save();
+        }
+
         $editedRole = User::where('id', $user->id)->update([
             'role' => $request->role,
-            'department_id' => $request->department_id,
-            'category_id' => $request->category_id,
             'state' => 'enabled',
         ]);
         return $editedRole;
