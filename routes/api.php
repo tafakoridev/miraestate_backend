@@ -44,6 +44,8 @@ Route::get('/auctions', [AuctionController::class, 'index']);
 Route::get('/auctions/{id}', [AuctionController::class, 'show']);
 Route::get('/tenders', [TenderController::class, 'index']);
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
+Route::get('/commodities', [CommodityController::class, 'index']);
+Route::get('/commodities/{id}', [CommodityController::class, 'show']);
 Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 
@@ -59,7 +61,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
  
   
  
-    Route::resource('commodities', CommodityController::class);
+    Route::resource('commodities', CommodityController::class)->except(['show', 'index']);
     Route::post('commodities/update/{id}', [CommodityController::class, 'update']);
 });
 
