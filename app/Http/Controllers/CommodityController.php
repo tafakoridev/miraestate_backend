@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commodity;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -11,19 +12,21 @@ class CommodityController extends Controller
 {
     public function index()
     {
-        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])->get();
+        $commodities = $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+        ->where('expired_at', '>', now()) // Retrieve records where expired_at is in the future
+        ->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
     }
 
     public function indexByCity($city_id)
     {
-        $commodities = Commodity::where('city_id', $city_id)->with(['city', 'category'])->get();
+        $commodities = Commodity::where('city_id', $city_id)->with(['city', 'category'])->where('expired_at', '>', now())->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
     }
 
     public function show($id)
     {
-        $commodity = Commodity::with(['city.province', 'category', 'agent.agent', 'user'])->find($id);
+        $commodity = Commodity::with(['city.province', 'category', 'agent.agent', 'user'])->where('expired_at', '>', now())->find($id);
 
         if (!$commodity) {
             return response(['message' => 'Commodity not found.'], Response::HTTP_NOT_FOUND);
@@ -108,6 +111,7 @@ class CommodityController extends Controller
             'city_id' => $validatedData['city_id'],
             'agent_id' => $validatedData['agent_id'],
             'picture' => '/storage/' . $picturePath,
+            'expired_at' => Carbon::now()->addDays(30)
         ]);
 
         return response(['commodity' => $commodity], Response::HTTP_CREATED);

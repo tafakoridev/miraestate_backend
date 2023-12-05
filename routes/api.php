@@ -42,17 +42,19 @@ Route::resource('cities', CityController::class);
 
 Route::get('/auctions', [AuctionController::class, 'index']);
 Route::get('/auctions/{id}', [AuctionController::class, 'show']);
+Route::get('/tenders/byuser/list', [TenderController::class, 'indexByUser'])->middleware("auth:sanctum");
 Route::get('/tenders', [TenderController::class, 'index']);
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
 Route::get('/commodities', [CommodityController::class, 'index']);
 Route::get('/commodities/{id}', [CommodityController::class, 'show']);
 Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
 Route::get('/users/{id}', [UserController::class, 'show']);
-
+Route::get('/users/agents/list', [UserController::class, 'agents']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
+    Route::post('/users/agents/decline', [UserController::class, 'AgentDecline']);
+    Route::post('/users/agents/setagent', [UserController::class, 'setAgent']);
     Route::get('/users/agents/in', [UserController::class, 'agentsIn']);
-    Route::get('/users/agents/list', [UserController::class, 'agents']);
     Route::resource('auctions', AuctionController::class)->except(['show', 'index']);
     Route::resource('tenders', TenderController::class)->except(['show', 'index']);
     Route::post('/users/role/set', [UserController::class, 'setRole']);

@@ -26,6 +26,7 @@ class AgentExpertiseFactory extends Factory
         return [
             'expertiese_id' => $agentIds[$this->faker->numberBetween(0, count($agentIds) - 1)],
             'field_id' => $fieldIds[$this->faker->numberBetween(0, count($fieldIds) - 1)],
+            'price' => rand(100000, 2000000),
             'field_type' => $fieldType,
             'created_at' => now(),
             'updated_at' => now(),

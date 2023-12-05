@@ -10,7 +10,8 @@ class Commodity extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'category_id', 'title', 'description', 'price', 'city_id', 'picture', 'agent_id'
+        'user_id', 'category_id', 'title', 'description', 'price', 'city_id', 'picture', 
+        'decline', 'agent_id'
     ];
 
     public function category()

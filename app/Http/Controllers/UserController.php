@@ -43,9 +43,9 @@ class UserController extends Controller
         $user = $request->user();
         $user_id =  $user->id;
 
-        $tenders = Tender::with('agent')->where('agent_id', $user_id)->get();
-        $auctions = Auction::with('agent')->where('agent_id', $user_id)->get();
-        $commodities = Commodity::with('agent')->where('agent_id', $user_id)->get();
+        $tenders = Tender::with(['agent', 'user'])->where('agent_id', $user_id)->get();
+        $auctions = Auction::with(['agent', 'user'])->where('agent_id', $user_id)->get();
+        $commodities = Commodity::with(['agent', 'user'])->where('agent_id', $user_id)->get();
 
         $response = [
             'tenders' => $tenders,
@@ -106,6 +106,55 @@ class UserController extends Controller
             $commodity = Commodity::find($id);
             $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id]);
             $commodity->agent()->save($agentdesk);
+        }
+        return true;
+    }
+// agent decline
+    public function AgentDecline(Request $request)
+    {
+        $agent = $request->user();
+        $type = $request->type;
+        $id = $request->id;
+        if($type === 'tender'){
+            $tender = Tender::find($id);
+            $tender->decline = $request->decline;
+            $tender->agent_id = null;
+            $tender->save();
+        }
+        else if($type === 'auction'){
+            $auction = Auction::find($id);
+            $auction->decline = $request->decline;
+            $auction->agent_id = null;
+            $auction->save();
+        }
+        else {
+            $commodity = Commodity::find($id);
+            $commodity->decline = $request->decline;
+            $commodity->agent_id = null;
+            $commodity->save();
+        }
+        return true;
+    }
+// agent set
+    public function setagent(Request $request)
+    {
+        $user = $request->user();
+        $type = $request->type;
+        $id = $request->id;
+        if($type === 'tender'){
+            $tender = Tender::find($id);
+            $tender->agent_id = $request->agent_id;
+            $tender->save();
+        }
+        else if($type === 'auction'){
+            $auction = Auction::find($id);
+            $auction->agent_id = $request->agent_id;
+            $auction->save();
+        }
+        else {
+            $commodity = Commodity::find($id);
+            $commodity->agent_id = $request->agent_id;
+            $commodity->save();
         }
         return true;
     }

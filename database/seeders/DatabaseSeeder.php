@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\AgentExpertise;
 use App\Models\Auction;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Commodity;
 use App\Models\Department;
 use App\Models\Province;
@@ -21,6 +22,8 @@ class DatabaseSeeder extends Seeder
     {
         // Seed users
         User::factory()->count(12)->create();
+        Province::factory()->count(12)->create();
+        City::factory()->count(12)->create();
 
  
 

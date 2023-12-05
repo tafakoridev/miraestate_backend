@@ -14,7 +14,16 @@ class TenderController extends Controller
      */
     public function index()
     {
-        $tenders = Tender::with(['agent.agent', 'user', 'department', 'purpose.user'])->get();
+        $tenders = Tender::with(['agent.agent', 'user', 'department', 'purpose.user', 'agentUser'])->orderBy('id', 'DESC')->get();
+        return response(['tenders' => $tenders], Response::HTTP_OK);
+    }
+    /**
+     * Display a listing of the resource.
+     */
+    public function indexByUser(Request $request)
+    {
+        $user = $request->user();
+        $tenders = Tender::where('user_id', $user->id)->with(['agent.agent', 'user', 'department', 'purpose.user', 'agentUser'])->orderBy('id', 'DESC')->get();
         return response(['tenders' => $tenders], Response::HTTP_OK);
     }
 

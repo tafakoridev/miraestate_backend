@@ -13,6 +13,7 @@ use Ybazli\Faker\Facades\Faker;
 class CommodityFactory extends Factory
 {
     protected $model = Commodity::class;
+
     public function randomImage()
     {
         $imageUrl = 'https://picsum.photos/600';
@@ -41,7 +42,7 @@ class CommodityFactory extends Factory
             'description' => Faker::paragraph(),
             'price' => $this->faker->randomFloat(2, 10, 500), // Adjust the price range as needed
             'city_id' => 1,//$citiesIds[$this->faker->numberBetween(0, count($citiesIds) - 1)],
-            'picture' => $this->randomImage(),//$this->faker->imageUrl(), // Replace with logic to generate or store images
+            'picture' => $this->faker->imageUrl(),//$this->faker->imageUrl(), // Replace with logic to generate or store images
             'agent_id' => $agentIds[$this->faker->numberBetween(0, count($agentIds) - 1)],
             'user_id' => $usersIds[$this->faker->numberBetween(0, count($usersIds) - 1)],
             'created_at' => now(),

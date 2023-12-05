@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('agent_expertises', function (Blueprint $table) {
+        Schema::create('agent_information', function (Blueprint $table) {
             $table->id();
-            $table->string('price');
-            $table->unsignedBigInteger('expertiese_id');
-            $table->unsignedBigInteger('field_id');
-            $table->string('field_type');
-            $table->foreign('expertiese_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('agent_expertises');
+        Schema::dropIfExists('agent_information');
     }
 };

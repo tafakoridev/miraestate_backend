@@ -15,7 +15,13 @@ class Tender extends Model
         'agent_id',
         'title',
         'description',
+        'decline',
     ];
+
+    public function agentUser()
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
 
     public function agent()
     {
