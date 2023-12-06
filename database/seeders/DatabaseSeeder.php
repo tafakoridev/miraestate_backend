@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\AgentExpertise;
+use App\Models\AgentInformation;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\City;
@@ -36,6 +37,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed departments
         Department::factory()->count(12)->create();
+      
   // Seed commodities
   Commodity::factory()->count(12)->create();
       // Seed auctions
@@ -44,5 +46,6 @@ class DatabaseSeeder extends Seeder
         Tender::factory()->count(12)->create();
                // Seed agent expertises
                AgentExpertise::factory()->count(12)->create();
+              // AgentInformation::factory()->count(12)->create();
     }
 }

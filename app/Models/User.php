@@ -71,4 +71,9 @@ class User extends Authenticatable
             $query->where('field_type', '=', "App\\Models\\Department");
         });
     }
+
+    public function information()
+    {
+        return $this->hasOne(AgentInformation::class, 'agent_id');
+    }
 }

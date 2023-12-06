@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('agent_expertises', function (Blueprint $table) {
             $table->id();
-            $table->string('price');
+            $table->string('price')->nullable();
             $table->unsignedBigInteger('expertiese_id');
             $table->unsignedBigInteger('field_id');
             $table->string('field_type');

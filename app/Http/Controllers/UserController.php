@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AgentDesk;
 use App\Models\AgentExpertise;
+use App\Models\AgentInformation;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Commodity;
@@ -24,18 +25,29 @@ class UserController extends Controller
         return $users;
     }
 
-    public function agentList(){
-        $users = User::where('role', 'agent')->with(['city', 'education', 'departmentExpertises.field', 'categoryExpertises.field'])->get();
+    public function agentList()
+    {
+        $users = User::where('role', 'agent')->with(['city', 'education', 'departmentExpertises.field', 'categoryExpertises.field', 'information'])->get();
         return $users;
     }
 
-        /**
+    /**
      * Display a listing of the resource.
      */
     public function agents()
     {
-        $users = User::where('role', 'agent')->with(['city', 'education'])->get();
+        $users = User::where('role', 'agent')->with(['city', 'education', 'information'])->get();
         return $users;
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function agentInformationUpdate(Request $request, $agent_id)
+    {
+        $agentInformation = AgentInformation::where('agent_id', $agent_id)->update($request->all());
+
+        return $agentInformation;
     }
 
     public function agentsIn(Request $request)
@@ -81,6 +93,16 @@ class UserController extends Controller
             'role' => $request->role,
             'state' => 'enabled',
         ]);
+        if ($request->role === 'agent') {
+            $agentInformation = new AgentInformation([
+                "rate" => "0",
+                "agent_id" => $user->id,
+                'profile_photo_url' => '/profileplaceholder.png'
+
+            ]);
+
+            $agentInformation->save();
+        }
         return $editedRole;
     }
 
@@ -92,42 +114,38 @@ class UserController extends Controller
         $agent = $request->user();
         $type = $request->type;
         $id = $request->id;
-        if($type === 'tender'){
+        if ($type === 'tender') {
             $tender = Tender::find($id);
             $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id]);
             $tender->agent()->save($agentdesk);
-        }
-        else if($type === 'auction'){
+        } else if ($type === 'auction') {
             $auction = Auction::find($id);
             $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id]);
             $auction->agent()->save($agentdesk);
-        }
-        else {
+        } else {
             $commodity = Commodity::find($id);
             $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id]);
             $commodity->agent()->save($agentdesk);
         }
         return true;
     }
-// agent decline
+    // agent decline
     public function AgentDecline(Request $request)
     {
         $agent = $request->user();
         $type = $request->type;
         $id = $request->id;
-        if($type === 'tender'){
+        if ($type === 'tender') {
             $tender = Tender::find($id);
             $tender->decline = $request->decline;
             $tender->agent_id = null;
             $tender->save();
-        }
-        else if($type === 'auction'){
+        } else if ($type === 'auction') {
             $auction = Auction::find($id);
             $auction->decline = $request->decline;
             $auction->agent_id = null;
             $auction->save();
-        }
-        else {
+        } else {
             $commodity = Commodity::find($id);
             $commodity->decline = $request->decline;
             $commodity->agent_id = null;
@@ -135,23 +153,21 @@ class UserController extends Controller
         }
         return true;
     }
-// agent set
+    // agent set
     public function setagent(Request $request)
     {
         $user = $request->user();
         $type = $request->type;
         $id = $request->id;
-        if($type === 'tender'){
+        if ($type === 'tender') {
             $tender = Tender::find($id);
             $tender->agent_id = $request->agent_id;
             $tender->save();
-        }
-        else if($type === 'auction'){
+        } else if ($type === 'auction') {
             $auction = Auction::find($id);
             $auction->agent_id = $request->agent_id;
             $auction->save();
-        }
-        else {
+        } else {
             $commodity = Commodity::find($id);
             $commodity->agent_id = $request->agent_id;
             $commodity->save();
@@ -199,5 +215,114 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function setPhotoAgent(Request $request)
+    {
+        // Retrieve the authenticated user using the token
+        $user = $request->user();
+
+        // Use $user->id to get the user_id
+
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+
+        // Store the photo in the storage/app/public directory
+        $picturePath = $request->file('photo')->store('profile_agent', 'public');
+        // Save the photo path in the AgentInformation model
+        $agentInformation = AgentInformation::where('agent_id', $user->id)->first();
+
+        if (!$agentInformation) {
+            $agentInformation = new AgentInformation(['agent_id' => $user->id]);
+        }
+
+        $agentInformation->profile_photo_url = '/storage/' . $picturePath;
+        $agentInformation->save();
+        return response()->json(['message' => 'تصویر با موفقیت آپلود شد'], 200, [], JSON_UNESCAPED_UNICODE);
+    }
+
+
+
+    public function getCategoryExpertises(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $categoryExpertises = $user->categoryExpertises()->with('field')->get();
+
+        return response()->json(['category_expertises' => $categoryExpertises]);
+    }
+
+
+    public function getDepartmentExpertises(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $departmentExpertises = $user->departmentExpertises()->with('field')->get();
+
+        return response()->json(['department_expertises' => $departmentExpertises]);
+    }
+
+    public function handleSavePrice(Request $request, string $categoryId)
+    {
+        try {
+            // Find the authenticated user
+            $user = $request->user();
+
+            // Find the category by ID
+            $category = Category::findOrFail($categoryId);
+
+            // Check if the user has the expertise associated with the category
+            $agentExpertise = $user->agentExpertises()
+                ->where('field_id', $category->id)
+                ->first();
+
+            if (!$agentExpertise) {
+                return response(['error' => 'User does not have expertise for this category'], Response::HTTP_FORBIDDEN);
+            }
+
+            // Update the price in the agent expertise
+            $agentExpertise->update(['price' => $request->input('price')]);
+
+            return response(['message' => 'Category price updated successfully'], Response::HTTP_OK);
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function handleSaveDepartmentPrice(Request $request, string $departmentId)
+    {
+        try {
+            // Find the authenticated user
+            $user = $request->user();
+
+            // Find the department by ID
+            $department = Department::findOrFail($departmentId);
+
+            // Check if the user has the expertise associated with the department
+            $agentExpertise = $user->agentExpertises()
+                ->where('field_id', $department->id)
+                ->first();
+
+            if (!$agentExpertise) {
+                return response(['error' => 'User does not have expertise for this department'], Response::HTTP_FORBIDDEN);
+            }
+
+            // Update the price in the agent expertise
+            $agentExpertise->update(['price' => $request->input('price')]);
+
+            return response(['message' => 'Department price updated successfully'], Response::HTTP_OK);
+        } catch (\Exception $exception) {
+            return response(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

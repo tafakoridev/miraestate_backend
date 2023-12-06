@@ -11,6 +11,7 @@ class AgentExpertise extends Model
 
     protected $fillable = [
         'expertiese_id',
+        'price',
         'field_id',
         'field_type',
     ];

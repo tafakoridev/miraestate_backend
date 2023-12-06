@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class AgentInformation extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'rate',
+        'is_active',
+        'agent_id',
+        'profile_photo_url',
+    ];
 }
