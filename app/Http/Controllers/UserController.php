@@ -188,7 +188,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with(['city', 'education'])->find($id);
+        $user = User::with(['city', 'education', 'information', 'employees'])->find($id);
         return $user;
     }
 
@@ -325,4 +325,80 @@ class UserController extends Controller
             return response(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    // employee and education
+
+     // Function to create a new education record for a user
+     public function createEducation(Request $request, $userId)
+     {
+         // Validate the incoming request data
+         $request->validate([
+             'educational_level' => 'required|string',
+             'field_of_study' => 'required|string',
+             'educational_institution' => 'required|string',
+             'from' => 'required|date',
+             'to' => 'nullable|date',
+             'currently_enrolled' => 'required|boolean',
+         ]);
+ 
+         // Find the user by ID
+         $user = User::findOrFail($userId);
+ 
+         // Create a new education record
+         $education = $user->educations()->create($request->all());
+ 
+         return response()->json($education, 201);
+     }
+ 
+     // Function to create a new employee record for a user
+     public function createEmployee(Request $request, $userId)
+     {
+         // Validate the incoming request data
+         $request->validate([
+             'company_name' => 'required|string',
+             'job_title' => 'required|string',
+             'from' => 'required|date',
+             'to' => 'nullable|date',
+             'currently_enrolled' => 'required|boolean',
+         ]);
+ 
+         // Find the user by ID
+         $user = User::findOrFail($userId);
+ 
+         // Create a new employee record
+         $employee = $user->employees()->create($request->all());
+ 
+         return response()->json($employee, 201);
+     }
+ 
+     // Function to delete an education record for a user
+     public function deleteEducation($userId, $educationId)
+     {
+         // Find the user by ID
+         $user = User::findOrFail($userId);
+ 
+         // Find the education record by ID for the given user
+         $education = $user->educations()->findOrFail($educationId);
+ 
+         // Delete the education record
+         $education->delete();
+ 
+         return response()->json(['message' => 'Education record deleted successfully'], 200);
+     }
+ 
+     // Function to delete an employee record for a user
+     public function deleteEmployee($userId, $employeeId)
+     {
+         // Find the user by ID
+         $user = User::findOrFail($userId);
+ 
+         // Find the employee record by ID for the given user
+         $employee = $user->employees()->findOrFail($employeeId);
+ 
+         // Delete the employee record
+         $employee->delete();
+ 
+         return response()->json(['message' => 'Employee record deleted successfully'], 200);
+     }
 }

@@ -18,4 +18,9 @@ class Education extends Model
         'currently_enrolled',
         'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

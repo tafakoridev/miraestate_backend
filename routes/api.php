@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $user = User::where('id', $request->user()->id)->with(['information', 'city'])->first();
+    $user = User::where('id', $request->user()->id)->with(['information', 'city', 'educations', 'employees'])->first();
     return $user;
 });
 
@@ -66,8 +66,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
     Route::put('/users/update/{id}', [UserController::class, 'update']);
-  
- 
+
+
     Route::resource('commodities', CommodityController::class)->except(['show', 'index']);
     Route::post('commodities/update/{id}', [CommodityController::class, 'update']);
 
@@ -76,6 +76,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/user/categories/{categoryId}/update-price', [UserController::class, 'handleSavePrice']);
     Route::put('/user/departments/{categoryId}/update-price', [UserController::class, 'handleSaveDepartmentPrice']);
 
+
+    // Create a new education record for a user
+    Route::post('users/{userId}/educations', [UserController::class, 'createEducation']);
+
+    // Create a new employee record for a user
+    Route::post('users/{userId}/employees', [UserController::class, 'createEmployee']);
+
+    // Delete an education record for a user
+    Route::delete('users/{userId}/educations/{educationId}', [UserController::class, 'deleteEducation']);
+
+    // Delete an employee record for a user
+    Route::delete('users/{userId}/employees/{employeeId}', [UserController::class, 'deleteEmployee']);
 });
 
 Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {

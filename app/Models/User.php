@@ -76,4 +76,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(AgentInformation::class, 'agent_id');
     }
+
+
+    public function educations()
+    {
+        return $this->hasMany(Education::class);
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
 }
