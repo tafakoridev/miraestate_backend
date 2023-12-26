@@ -48,6 +48,11 @@ class User extends Authenticatable
         return $this->belongsTo(City::class);
     }
 
+    public function agentDesks()
+    {
+        return $this->hasMany(AgentDesk::class, 'agent_id');
+    }
+    
     public function education()
     {
         return $this->hasMany(Education::class);

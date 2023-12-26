@@ -40,6 +40,18 @@ class UserController extends Controller
         return $users;
     }
 
+    public function agentsByCategory($category_id)
+    {
+        $agents = User::where('role', 'agent')
+            ->whereHas('categoryExpertises', function ($query) use ($category_id) {
+                $query->where('field_id', $category_id);
+            })
+            ->with(['city', 'education', 'information', 'categoryExpertises'])
+            ->get();
+
+        return $agents;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -67,6 +79,56 @@ class UserController extends Controller
 
         return response($response, Response::HTTP_OK);
     }
+
+    public function agentsInCounter(Request $request)
+    {
+        $user = $request->user();
+        $user_id =  $user->id;
+        $tendersCount = Tender::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $auctionsCount = Auction::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $commoditiesCount = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+
+        $tendersCountDecline = Tender::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $auctionsCountDecline = Auction::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $commoditiesCountDecline = Commodity::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+
+        // Return the counts
+        return [
+            'tendersCount' => $tendersCount,
+            'auctionsCount' => $auctionsCount,
+            'commoditiesCount' => $commoditiesCount,
+            'tendersCountDecline' => $tendersCountDecline,
+            'auctionsCountDecline' => $auctionsCountDecline,
+            'commoditiesCountDecline' => $commoditiesCountDecline,
+        ];
+    }
+
+    public function agentsInTitle(Request $request)
+    {
+        $user = $request->user();
+        $user_id = $user->id;
+
+        $tenders = Tender::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
+        $auctions = Auction::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
+        $commodities = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
+
+        $tendersDecline = Tender::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
+        $auctionsDecline = Auction::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
+        $commoditiesDecline = Commodity::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
+
+        // Return the titles
+        return [
+            'tenders' => $tenders,
+            'auctions' => $auctions,
+            'commodities' => $commodities,
+            'tendersDecline' => $tendersDecline,
+            'auctionsDecline' => $auctionsDecline,
+            'commoditiesDecline' => $commoditiesDecline,
+        ];
+    }
+
+
+
 
     public function setRole(Request $request)
     {
@@ -188,7 +250,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with(['city', 'education', 'information', 'employees'])->find($id);
+        $user = User::with(['city', 'education', 'information', 'employees', 'agentDesks.agentable'])->find($id);
         return $user;
     }
 
@@ -329,76 +391,76 @@ class UserController extends Controller
 
     // employee and education
 
-     // Function to create a new education record for a user
-     public function createEducation(Request $request, $userId)
-     {
-         // Validate the incoming request data
-         $request->validate([
-             'educational_level' => 'required|string',
-             'field_of_study' => 'required|string',
-             'educational_institution' => 'required|string',
-             'from' => 'required|date',
-             'to' => 'nullable|date',
-             'currently_enrolled' => 'required|boolean',
-         ]);
- 
-         // Find the user by ID
-         $user = User::findOrFail($userId);
- 
-         // Create a new education record
-         $education = $user->educations()->create($request->all());
- 
-         return response()->json($education, 201);
-     }
- 
-     // Function to create a new employee record for a user
-     public function createEmployee(Request $request, $userId)
-     {
-         // Validate the incoming request data
-         $request->validate([
-             'company_name' => 'required|string',
-             'job_title' => 'required|string',
-             'from' => 'required|date',
-             'to' => 'nullable|date',
-             'currently_enrolled' => 'required|boolean',
-         ]);
- 
-         // Find the user by ID
-         $user = User::findOrFail($userId);
- 
-         // Create a new employee record
-         $employee = $user->employees()->create($request->all());
- 
-         return response()->json($employee, 201);
-     }
- 
-     // Function to delete an education record for a user
-     public function deleteEducation($userId, $educationId)
-     {
-         // Find the user by ID
-         $user = User::findOrFail($userId);
- 
-         // Find the education record by ID for the given user
-         $education = $user->educations()->findOrFail($educationId);
- 
-         // Delete the education record
-         $education->delete();
- 
-         return response()->json(['message' => 'Education record deleted successfully'], 200);
-     }
- 
-     // Function to delete an employee record for a user
-     public function deleteEmployee($userId, $employeeId)
-     {
-         // Find the user by ID
-         $user = User::findOrFail($userId);
- 
-         // Find the employee record by ID for the given user
-         $employee = $user->employees()->findOrFail($employeeId);
- 
-         // Delete the employee record
-         $employee->delete();
- 
-         return response()->json(['message' => 'Employee record deleted successfully'], 200);
-     }
+    // Function to create a new education record for a user
+    public function createEducation(Request $request, $userId)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'educational_level' => 'required|string',
+            'field_of_study' => 'required|string',
+            'educational_institution' => 'required|string',
+            'from' => 'required|date',
+            'to' => 'nullable|date',
+            'currently_enrolled' => 'required|boolean',
+        ]);
+
+        // Find the user by ID
+        $user = User::findOrFail($userId);
+
+        // Create a new education record
+        $education = $user->educations()->create($request->all());
+
+        return response()->json($education, 201);
+    }
+
+    // Function to create a new employee record for a user
+    public function createEmployee(Request $request, $userId)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'company_name' => 'required|string',
+            'job_title' => 'required|string',
+            'from' => 'required|date',
+            'to' => 'nullable|date',
+            'currently_enrolled' => 'required|boolean',
+        ]);
+
+        // Find the user by ID
+        $user = User::findOrFail($userId);
+
+        // Create a new employee record
+        $employee = $user->employees()->create($request->all());
+
+        return response()->json($employee, 201);
+    }
+
+    // Function to delete an education record for a user
+    public function deleteEducation($userId, $educationId)
+    {
+        // Find the user by ID
+        $user = User::findOrFail($userId);
+
+        // Find the education record by ID for the given user
+        $education = $user->educations()->findOrFail($educationId);
+
+        // Delete the education record
+        $education->delete();
+
+        return response()->json(['message' => 'Education record deleted successfully'], 200);
+    }
+
+    // Function to delete an employee record for a user
+    public function deleteEmployee($userId, $employeeId)
+    {
+        // Find the user by ID
+        $user = User::findOrFail($userId);
+
+        // Find the employee record by ID for the given user
+        $employee = $user->employees()->findOrFail($employeeId);
+
+        // Delete the employee record
+        $employee->delete();
+
+        return response()->json(['message' => 'Employee record deleted successfully'], 200);
+    }
 }

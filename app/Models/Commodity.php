@@ -11,7 +11,7 @@ class Commodity extends Model
 
     protected $fillable = [
         'user_id', 'category_id', 'title', 'description', 'price', 'city_id', 'picture', 
-        'decline', 'agent_id'
+        'decline', 'agent_id', 'expired_at'
     ];
 
     public function category()

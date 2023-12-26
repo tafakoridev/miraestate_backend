@@ -20,7 +20,7 @@ class CommodityController extends Controller
 
     public function indexByCity($city_id)
     {
-        $commodities = Commodity::where('city_id', $city_id)->with(['city', 'category'])->where('expired_at', '>', now())->get();
+        $commodities = Commodity::where('city_id', $city_id)->with(['city', 'category','agent.agent',])->where('expired_at', '>', now())->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
     }
 
@@ -88,13 +88,22 @@ class CommodityController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
+        if($request->agent_id)
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'city_id' => 'required|exists:cities,id',
-            'agent_id' => 'required|exists:users,id',
+            'agent_id' => 'exists:users,id',
+            'picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        else $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+            'city_id' => 'required|exists:cities,id',
             'picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -109,7 +118,7 @@ class CommodityController extends Controller
             'description' => $validatedData['description'],
             'price' => $validatedData['price'],
             'city_id' => $validatedData['city_id'],
-            'agent_id' => $validatedData['agent_id'],
+            'agent_id' => $validatedData['agent_id'] ?? null,
             'picture' => '/storage/' . $picturePath,
             'expired_at' => Carbon::now()->addDays(30)
         ]);
