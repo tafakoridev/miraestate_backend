@@ -12,7 +12,7 @@ class CommodityController extends Controller
 {
     public function index()
     {
-        $commodities = $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
         ->where('expired_at', '>', now()) // Retrieve records where expired_at is in the future
         ->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
@@ -26,7 +26,7 @@ class CommodityController extends Controller
 
     public function show($id)
     {
-        $commodity = Commodity::with(['city.province', 'category', 'agent.agent', 'user'])->where('expired_at', '>', now())->find($id);
+        $commodity = Commodity::with(['city.province', 'category', 'agent.agent', 'user'])->find($id);
 
         if (!$commodity) {
             return response(['message' => 'Commodity not found.'], Response::HTTP_NOT_FOUND);
