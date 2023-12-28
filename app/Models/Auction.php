@@ -16,6 +16,8 @@ class Auction extends Model
         'title',
         'description',
         'decline',
+        'start',
+        'end',
     ];
 
     public function agent()

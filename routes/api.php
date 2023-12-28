@@ -31,6 +31,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $user;
 });
 
+Route::middleware('auth:sanctum', 'admin')->get('/user/{id}', function ($id) {
+    $user = User::where('id', $id)->with(['information', 'city', 'educations', 'employees'])->first();
+    return $user;
+});
+
 
 Route::post('/checkcode', [AuthController::class, 'checkCode']);
 Route::post('/login', [AuthController::class, 'login']);

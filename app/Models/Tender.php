@@ -16,6 +16,8 @@ class Tender extends Model
         'title',
         'description',
         'decline',
+        'start',
+        'end',
     ];
 
     public function agentUser()

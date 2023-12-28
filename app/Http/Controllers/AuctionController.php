@@ -32,6 +32,8 @@ class AuctionController extends Controller
             'agent_id' => 'required|exists:users,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
 
         $auction = Auction::create($validatedData);
@@ -69,6 +71,8 @@ class AuctionController extends Controller
             'agent_id' => 'required|exists:users,id',
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
 
         $auction = Auction::findOrFail($id);

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string("title");
             $table->longText("description");
             $table->text('decline')->nullable();
+            $table->date("start")->nullable();
+            $table->date("end")->nullable();
             $table->timestamps();
         });
     }

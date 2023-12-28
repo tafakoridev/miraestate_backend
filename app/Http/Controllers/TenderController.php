@@ -58,6 +58,8 @@ class TenderController extends Controller
             'agent_id' => 'exists:users,id',
             'title' => 'string|max:255',
             'description' => 'string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
 
         $tender = Tender::create($validatedData);
@@ -94,6 +96,8 @@ class TenderController extends Controller
             'agent_id' => 'exists:users,id',
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
         ]);
 
         $tender = Tender::findOrFail($id);
