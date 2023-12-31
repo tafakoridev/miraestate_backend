@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  web:
+    image: mira_backend
+    ports:
+      - "8089:80"
+    volumes:
+      - /root/miraestate_backend:/var/www/html

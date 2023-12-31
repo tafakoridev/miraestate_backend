@@ -26,7 +26,8 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Enable Apache modules
 RUN a2enmod rewrite
-
+RUN composer install
+RUN chown www-data:www-data -R ./storage
 # Expose port 80 and start Apache
 EXPOSE 80
 CMD ["apache2-foreground"]
