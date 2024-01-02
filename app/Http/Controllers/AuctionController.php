@@ -65,7 +65,7 @@ class AuctionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if($request->agent_id)
+        if($request->agent_id != "")
         $validatedData = $request->validate([
             'user_id' => 'sometimes|exists:users,id',
             'department_id' => 'sometimes|exists:departments,id',
