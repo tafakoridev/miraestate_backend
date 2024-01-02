@@ -96,7 +96,7 @@ class CommodityController extends Controller
             'category_id' => 'required|exists:categories,id',
             'city_id' => 'required|exists:cities,id',
             'agent_id' => 'exists:users,id',
-            'picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'picture' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         else $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -104,11 +104,12 @@ class CommodityController extends Controller
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
             'city_id' => 'required|exists:cities,id',
-            'picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'picture' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $validatedData['user_id'] = $user->id;
         // Handle file upload (you may want to customize this based on your file storage setup)
+        
         $picturePath = $request->file('picture')->store('commodity_pictures', 'public');
 
         $commodity = Commodity::create([
@@ -119,7 +120,7 @@ class CommodityController extends Controller
             'price' => $validatedData['price'],
             'city_id' => $validatedData['city_id'],
             'agent_id' => $validatedData['agent_id'] ?? null,
-            'picture' => '/storage/' . $picturePath,
+            'picture' => $validatedData['picture'] ? '/storage/' . $picturePath : "",
             'expired_at' => Carbon::now()->addDays(30)
         ]);
 
