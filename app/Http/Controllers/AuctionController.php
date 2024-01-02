@@ -26,10 +26,19 @@ class AuctionController extends Controller
      */
     public function store(Request $request)
     {
+        if($request->agent_id)
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
             'department_id' => 'required|exists:departments,id',
             'agent_id' => 'required|exists:users,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
+        ]); else    $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'department_id' => 'required|exists:departments,id',
+        
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'start' => 'nullable|date',
@@ -65,7 +74,7 @@ class AuctionController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if($request->agent_id != "")
+        if($request->agent_id)
         $validatedData = $request->validate([
             'user_id' => 'sometimes|exists:users,id',
             'department_id' => 'sometimes|exists:departments,id',
