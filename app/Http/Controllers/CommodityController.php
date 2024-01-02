@@ -44,6 +44,7 @@ class CommodityController extends Controller
         return response(['message' => 'Commodity not found.'], Response::HTTP_NOT_FOUND);
     }
 
+    if($request->agent_id)
     $validatedData = $request->validate([
         'title' => 'sometimes|string|max:255',
         'description' => 'sometimes|string',
@@ -51,6 +52,13 @@ class CommodityController extends Controller
         'category_id' => 'sometimes|exists:categories,id',
         'city_id' => 'sometimes|exists:cities,id',
         'agent_id' => 'sometimes|exists:users,id',
+        'picture' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]); else $validatedData = $request->validate([
+        'title' => 'sometimes|string|max:255',
+        'description' => 'sometimes|string',
+        'price' => 'sometimes|numeric',
+        'category_id' => 'sometimes|exists:categories,id',
+        'city_id' => 'sometimes|exists:cities,id',
         'picture' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
