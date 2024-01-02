@@ -65,10 +65,19 @@ class AuctionController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if($request->agent_id)
         $validatedData = $request->validate([
             'user_id' => 'sometimes|exists:users,id',
             'department_id' => 'sometimes|exists:departments,id',
             'agent_id' => 'required|exists:users,id',
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
+        ]); else $validatedData = $request->validate([
+            'user_id' => 'sometimes|exists:users,id',
+            'department_id' => 'sometimes|exists:departments,id',
+          
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
             'start' => 'nullable|date',

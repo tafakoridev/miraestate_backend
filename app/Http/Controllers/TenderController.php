@@ -52,10 +52,18 @@ class TenderController extends Controller
      */
     public function store(Request $request)
     {
+        if($request->agent_id)
         $validatedData = $request->validate([
             'user_id' => 'exists:users,id',
             'department_id' => 'exists:departments,id',
             'agent_id' => 'exists:users,id',
+            'title' => 'string|max:255',
+            'description' => 'string',
+            'start' => 'nullable|date',
+            'end' => 'nullable|date',
+        ]); else $validatedData = $request->validate([
+            'user_id' => 'exists:users,id',
+            'department_id' => 'exists:departments,id',
             'title' => 'string|max:255',
             'description' => 'string',
             'start' => 'nullable|date',
