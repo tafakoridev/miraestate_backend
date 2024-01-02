@@ -267,7 +267,8 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $updateUser = User::where('id', $id)->update($request->all());
+        $filteredData = $request->except(['education', 'city']);
+        $updateUser = User::where('id', $id)->update($filteredData);
         return $updateUser;
     }
 
