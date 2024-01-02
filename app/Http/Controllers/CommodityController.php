@@ -109,7 +109,7 @@ class CommodityController extends Controller
 
         $validatedData['user_id'] = $user->id;
         // Handle file upload (you may want to customize this based on your file storage setup)
-        
+        if($validatedData['picture'])
         $picturePath = $request->file('picture')->store('commodity_pictures', 'public');
 
         $commodity = Commodity::create([
