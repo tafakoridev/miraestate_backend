@@ -109,7 +109,7 @@ class CommodityController extends Controller
 
         $validatedData['user_id'] = $user->id;
         // Handle file upload (you may want to customize this based on your file storage setup)
-        if($validatedData['picture'])
+        if($request->has('picture'))
         $picturePath = $request->file('picture')->store('commodity_pictures', 'public');
 
         $commodity = Commodity::create([
@@ -120,7 +120,7 @@ class CommodityController extends Controller
             'price' => $validatedData['price'],
             'city_id' => $validatedData['city_id'],
             'agent_id' => $validatedData['agent_id'] ?? null,
-            'picture' => $validatedData['picture'] ? '/storage/' . $picturePath : "",
+            'picture' => $request->has('picture') ? '/storage/' . $picturePath : "",
             'expired_at' => Carbon::now()->addDays(30)
         ]);
 
