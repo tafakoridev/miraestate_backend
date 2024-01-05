@@ -18,7 +18,7 @@ class CategoryController extends Controller
 
     public function StepIndex()
     {
-        $categories = Category::with('recursiveChildren')->where('parent_id', 0)->whereNull('parent_id')->get();
+        $categories = Category::with('recursiveChildren')->where('parent_id', 0)->orWhereNull('parent_id')->get();
 
         return response(['categories' => $categories], Response::HTTP_OK);
     }
