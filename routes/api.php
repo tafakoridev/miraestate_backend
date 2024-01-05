@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
@@ -41,9 +42,11 @@ Route::post('/checkcode', [AuthController::class, 'checkCode']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/commodities/bycity/list/{city_id}', [CommodityController::class, 'indexByCity']);
+Route::get('/commodities/bycity/list/{city_id}/{type}', [CommodityController::class, 'indexByCityAndType']);
+Route::get('/commodities/bycity/list/{city_id}/{type}/{category_id}', [CommodityController::class, 'indexByCityAndTypeAndCategory']);
+Route::get('/categories/children/get', [CategoryController::class, 'StepIndex']);
 
 Route::resource('categories', CategoryController::class);
-Route::resource('departments', DepartmentController::class);
 Route::resource('provinces', ProvinceController::class);
 Route::resource('cities', CityController::class);
 
@@ -54,12 +57,16 @@ Route::get('/tenders', [TenderController::class, 'index']);
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
 Route::get('/commodities', [CommodityController::class, 'index']);
 Route::get('/commodities/{id}', [CommodityController::class, 'show']);
+ 
 Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 Route::get('/users/agents/list', [UserController::class, 'agents']);
 Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsByCategory']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+       //commodity exp
+
+    Route::post('/commodities/store/ex', [CommodityController::class, 'storeEx']);
     Route::post('/set-photo-agent', [UserController::class, 'setPhotoAgent']);
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
     Route::post('/users/agents/decline', [UserController::class, 'AgentDecline']);
@@ -73,6 +80,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/role/set', [UserController::class, 'setRole']);
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
+
+
     Route::put('/users/update/{id}', [UserController::class, 'update']);
 
 
@@ -101,3 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::resource('users', UserController::class);
 });
+
+
+//agent controller
+Route::get('/rating', [AgentController::class, 'ratinggg']);

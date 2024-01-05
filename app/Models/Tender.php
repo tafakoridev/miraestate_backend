@@ -11,7 +11,7 @@ class Tender extends Model
     
     protected $fillable = [
         'user_id',
-        'department_id',
+        'category_id',
         'agent_id',
         'title',
         'description',
@@ -40,8 +40,8 @@ class Tender extends Model
         return $this->morphMany(Purpose::class, 'purposeable');
     }
 
-    public function department()
+    public function category()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Category::class);
     }
 }

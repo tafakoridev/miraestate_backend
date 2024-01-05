@@ -55,7 +55,7 @@ class AuctionController extends Controller
      */
     public function show(string $id)
     {
-        $auction = Auction::with(['agent.agent', 'user', 'department', 'purpose.user'])->findOrFail($id);
+        $auction = Auction::with(['agent.agent', 'user',  'purpose.user'])->findOrFail($id);
         return response(['auction' => $auction], Response::HTTP_OK);
     }
 

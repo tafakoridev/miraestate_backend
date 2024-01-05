@@ -12,7 +12,14 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::get();
+        return response(['categories' => $categories], Response::HTTP_OK);
+    }
+
+    public function StepIndex()
+    {
+        $categories = Category::with('recursiveChildren')->whereNull('parent_id')->get();
+
         return response(['categories' => $categories], Response::HTTP_OK);
     }
 
@@ -23,6 +30,8 @@ class CategoryController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'parent_id' => 'string|max:255',
+            'price' => 'string|max:255',
         ]);
 
         $category = Category::create($validatedData);
@@ -45,8 +54,11 @@ class CategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'string|max:255',
+            'parent_id' => 'max:255',
+            'price' => 'string|max:255',
         ]);
+
 
         $category = Category::findOrFail($id);
         $category->update($validatedData);

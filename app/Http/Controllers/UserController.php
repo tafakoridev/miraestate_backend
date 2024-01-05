@@ -21,13 +21,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with(['city', 'education'])->get();
+        $users = User::whereNot('role', 'agent')->with(['city', 'education'])->get();
         return $users;
     }
 
     public function agentList()
     {
-        $users = User::where('role', 'agent')->with(['city', 'education', 'departmentExpertises.field', 'categoryExpertises.field', 'information'])->get();
+        $users = User::where('role', 'agent')->with(['city', 'education', 'categoryExpertises.field', 'information'])->get();
         return $users;
     }
 
@@ -140,14 +140,6 @@ class UserController extends Controller
             $agentExpertise = new AgentExpertise();
             $agentExpertise->expertiese_id = $user->id;
             $agentExpertise->field()->associate($category);
-            $agentExpertise->save();
-        }
-
-        foreach ($departments as $key => $department_id) {
-            $department = Department::find($department_id);
-            $agentExpertise = new AgentExpertise();
-            $agentExpertise->expertiese_id = $user->id;
-            $agentExpertise->field()->associate($department);
             $agentExpertise->save();
         }
 
@@ -362,32 +354,7 @@ class UserController extends Controller
         }
     }
 
-    public function handleSaveDepartmentPrice(Request $request, string $departmentId)
-    {
-        try {
-            // Find the authenticated user
-            $user = $request->user();
-
-            // Find the department by ID
-            $department = Department::findOrFail($departmentId);
-
-            // Check if the user has the expertise associated with the department
-            $agentExpertise = $user->agentExpertises()
-                ->where('field_id', $department->id)
-                ->first();
-
-            if (!$agentExpertise) {
-                return response(['error' => 'User does not have expertise for this department'], Response::HTTP_FORBIDDEN);
-            }
-
-            // Update the price in the agent expertise
-            $agentExpertise->update(['price' => $request->input('price')]);
-
-            return response(['message' => 'Department price updated successfully'], Response::HTTP_OK);
-        } catch (\Exception $exception) {
-            return response(['error' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
+   
 
 
     // employee and education

@@ -20,7 +20,7 @@ class AgentExpertiseFactory extends Factory
         if ($fieldType === 'App\Models\Category') {
             $fieldIds = Category::pluck('id')->all();
         } else {
-            $fieldIds = Department::pluck('id')->all();
+            $fieldIds = Category::pluck('id')->all();
         }
 
         return [

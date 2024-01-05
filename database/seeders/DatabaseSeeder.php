@@ -9,7 +9,6 @@ use App\Models\Auction;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Commodity;
-use App\Models\Department;
 use App\Models\Province;
 use App\Models\Tender;
 use App\Models\User;
@@ -35,9 +34,6 @@ class DatabaseSeeder extends Seeder
 
       
 
-        // Seed departments
-        Department::factory()->count(12)->create();
-      
   // Seed commodities
   Commodity::factory()->count(12)->create();
       // Seed auctions

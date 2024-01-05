@@ -70,13 +70,6 @@ class User extends Authenticatable
         });
     }
 
-    public function departmentExpertises()
-    {
-        return $this->agentExpertises()->where(function ($query) {
-            $query->where('field_type', '=', "App\\Models\\Department");
-        });
-    }
-
     public function information()
     {
         return $this->hasOne(AgentInformation::class, 'agent_id');

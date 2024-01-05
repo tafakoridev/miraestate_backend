@@ -11,7 +11,7 @@ class Auction extends Model
 
     protected $fillable = [
         'user_id',
-        'department_id',
+        'category_id',
         'agent_id',
         'title',
         'description',
@@ -36,8 +36,8 @@ class Auction extends Model
     }
 
     
-    public function department()
+    public function category()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Category::class);
     }
 }

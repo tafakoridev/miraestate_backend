@@ -80,7 +80,7 @@ class TenderController extends Controller
      */
     public function show(string $id)
     {
-        $tender = Tender::with(['agent.agent', 'user', 'department', 'purpose.user'])->findOrFail($id);
+        $tender = Tender::with(['agent.agent', 'user', 'purpose.user'])->findOrFail($id);
         return response(['tender' => $tender], Response::HTTP_OK);
     }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->text('decline')->nullable();
-            $table->decimal('price', 8, 2);
+            $table->decimal('price', 65, 2);
             $table->unsignedBigInteger('city_id');
             $table->string('picture');
             $table->unsignedBigInteger('agent_id')->nullable();
