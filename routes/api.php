@@ -65,6 +65,7 @@ Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsBy
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
        //commodity exp
+    Route::get('/checkProfile', [UserController::class, 'checkProfile']);
 
     Route::post('/commodities/store/ex', [CommodityController::class, 'storeEx']);
     Route::post('/set-photo-agent', [UserController::class, 'setPhotoAgent']);

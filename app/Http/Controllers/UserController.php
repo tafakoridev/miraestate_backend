@@ -67,8 +67,8 @@ class UserController extends Controller
         $user = $request->user();
         $user_id =  $user->id;
 
-        $tenders = Tender::with(['agent', 'user'])->where('agent_id', $user_id)->get();
-        $auctions = Auction::with(['agent', 'user'])->where('agent_id', $user_id)->get();
+        $tenders = [];
+        $auctions = [];
         $commodities = Commodity::with(['agent', 'user'])->where('agent_id', $user_id)->get();
 
         $response = [
@@ -84,12 +84,12 @@ class UserController extends Controller
     {
         $user = $request->user();
         $user_id =  $user->id;
-        $tendersCount = Tender::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
-        $auctionsCount = Auction::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $tendersCount = 0;
+        $auctionsCount = 0;
         $commoditiesCount = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
 
-        $tendersCountDecline = Tender::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
-        $auctionsCountDecline = Auction::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
+        $tendersCountDecline = 0;
+        $auctionsCountDecline = 0;
         $commoditiesCountDecline = Commodity::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
 
         // Return the counts
@@ -108,12 +108,12 @@ class UserController extends Controller
         $user = $request->user();
         $user_id = $user->id;
 
-        $tenders = Tender::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
-        $auctions = Auction::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
+        $tenders = [];
+        $auctions = [];
         $commodities = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
 
-        $tendersDecline = Tender::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
-        $auctionsDecline = Auction::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
+        $tendersDecline = [];
+        $auctionsDecline = [];
         $commoditiesDecline = Commodity::where('user_id', $user_id)->whereNotNull('decline')->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'decline', 'title']);
 
         // Return the titles
@@ -254,6 +254,24 @@ class UserController extends Controller
         //
     }
 
+
+    public function checkProfile(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role == 'agent') {
+            // Check if AgentInformation exists for the user
+            $agentInformation = $user->information;
+
+            if ($agentInformation && $agentInformation->profile_photo_url === '/profileplaceholder.png') {
+                // Profile photo is set to the placeholder, return an error
+                return response()->json(['retval' => false, 'error' => 'تصویر پروفایل خود را تنظیم کنید'], 400);
+            }
+            return response()->json(['retval' => true, 'error' => 'تصویر پروفایل خود را تنظیم کرده اید '], 200);
+        }
+
+        return response()->json(['retval' => true, 'error' => 'تصویر پروفایل خود را تنظیم کرده اید '], 200);
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -261,6 +279,23 @@ class UserController extends Controller
     {
         $filteredData = $request->except(['education', 'city']);
         $updateUser = User::where('id', $id)->update($filteredData);
+        if ($request->role === 'agent') {
+            $agentExistsInformation = AgentInformation::where('agent_id', $id)->first();
+            if (empty($agentExistsInformation)) {
+                $agentInformation = new AgentInformation([
+                    "rate" => "0",
+                    "agent_id" => $id,
+                    "is_active" => "deactive",
+                    'profile_photo_url' => '/profileplaceholder.png'
+                ]);
+
+                $agentInformation->save();
+            }
+            else {
+                $agentExistsInformation->is_active = "deactive";
+                $agentExistsInformation->save();
+            }
+        }
         return $updateUser;
     }
 
@@ -294,6 +329,7 @@ class UserController extends Controller
         }
 
         $agentInformation->profile_photo_url = '/storage/' . $picturePath;
+        $agentInformation->is_active = 'deactive';
         $agentInformation->save();
         return response()->json(['message' => 'تصویر با موفقیت آپلود شد'], 200, [], JSON_UNESCAPED_UNICODE);
     }
@@ -354,7 +390,7 @@ class UserController extends Controller
         }
     }
 
-   
+
 
 
     // employee and education

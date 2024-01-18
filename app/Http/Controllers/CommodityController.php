@@ -178,23 +178,24 @@ class CommodityController extends Controller
     public function storeEx(Request $request)
     {
         $user = $request->user();
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
-            'city_id' => 'required|exists:cities,id',
-            'picture' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
 
+        $validatedData = $request->validate([
+            'title' => 'string|max:255',
+            'description' => 'string',
+            'price' => '',
+            'category_id' => 'exists:categories,id',
+            'city_id' => 'exists:cities,id',
+            'pictures.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:8048',
+        ]);
 
         $validatedData['user_id'] = $user->id;
         $agent = AgentController::bestAgent($validatedData['category_id']);
-        if (!$agent)
+
+        if (!$agent) {
             return json_encode(['error' => "کارشناس مرتبط برای  شما پیدا نشد، با پشتیبانی تماس بگیرید"], JSON_UNESCAPED_UNICODE);
+        }
+
         $agent_id = $agent->id;
-        if ($request->has('picture'))
-            $picturePath = $request->file('picture')->store('commodity_pictures', 'public');
 
         $commodity = Commodity::create([
             'user_id' => $validatedData['user_id'],
@@ -204,9 +205,22 @@ class CommodityController extends Controller
             'price' => $validatedData['price'],
             'city_id' => $validatedData['city_id'],
             'agent_id' => $agent_id,
-            'picture' => $request->has('picture') ? '/storage/' . $picturePath : "",
+            'picture' => "empty",
             'expired_at' => Carbon::now()->addDays(30)
         ]);
+
+        // Handle pictures
+        if ($request->hasFile('pictures')) {
+            $picturesPath = [];
+
+            foreach ($request->file('pictures') as $index => $picture) {
+                $path = $picture->store('commodity_pictures', 'public');
+                $picturesPath[] = '/storage/' . $path;
+            }
+
+            // Save picture paths to the commodity
+            $commodity->update(['picture' => json_encode($picturesPath)]);
+        }
 
         return response(['success' => "کارشناسی شما به $agent->name سپرده شد."], Response::HTTP_CREATED);
     }
