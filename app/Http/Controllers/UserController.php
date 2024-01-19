@@ -178,11 +178,13 @@ class UserController extends Controller
             $auction->agent()->save($agentdesk);
         } else {
             $commodity = Commodity::find($id);
-            $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id]);
+            $agentdesk = new AgentDesk(['description' => $request->description, 'agent_id' => $agent->id, 'fields' => $request->fields]);
             $commodity->agent()->save($agentdesk);
         }
         return true;
     }
+
+
     // agent decline
     public function AgentDecline(Request $request)
     {

@@ -9,7 +9,7 @@ class AgentDesk extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['description', 'agent_id'];
+    protected $fillable = ['description', 'agent_id', 'fields'];
 
 
     public function agentable()

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("title");
             $table->string("price")->default(0);
+            $table->json("fields")->nullable();
             $table->unsignedbigInteger("parent_id")->nullable();
             $table->timestamps();
         });

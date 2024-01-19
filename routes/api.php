@@ -110,6 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::resource('users', UserController::class);
+    Route::post('/savetocategory/{id}', [CategoryController::class, 'saveFieldsToCategory']);
 });
 
 

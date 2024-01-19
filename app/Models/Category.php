@@ -10,9 +10,7 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title'
-        ,'parent_id'
-        ,'price'
+        'title', 'parent_id', 'price', 'fields'
     ];
 
     public function agentExpertises()

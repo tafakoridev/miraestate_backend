@@ -15,6 +15,13 @@ class CategoryController extends Controller
         $categories = Category::get();
         return response(['categories' => $categories], Response::HTTP_OK);
     }
+   
+    public function saveFieldsToCategory(Request $request, $id)
+    {
+        $category = Category::where('id', $id)->first();
+        $category->fields = $request->fields;
+        return response(['retVal' => $category->save()], Response::HTTP_OK);
+    }
 
     public function StepIndex()
     {

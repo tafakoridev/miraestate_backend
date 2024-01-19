@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('agentable_id');
             $table->string('agentable_type');
             $table->unsignedBigInteger('agent_id');
+            $table->json("fields")->nullable();
             $table->foreign('agent_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });

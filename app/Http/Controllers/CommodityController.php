@@ -183,10 +183,12 @@ class CommodityController extends Controller
             'title' => 'string|max:255',
             'description' => 'string',
             'price' => '',
+            'fields' => '',
             'category_id' => 'exists:categories,id',
             'city_id' => 'exists:cities,id',
             'pictures.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:8048',
         ]);
+
 
         $validatedData['user_id'] = $user->id;
         $agent = AgentController::bestAgent($validatedData['category_id']);
@@ -206,6 +208,7 @@ class CommodityController extends Controller
             'city_id' => $validatedData['city_id'],
             'agent_id' => $agent_id,
             'picture' => "empty",
+            'fields' => $validatedData['fields'],
             'expired_at' => Carbon::now()->addDays(30)
         ]);
 
