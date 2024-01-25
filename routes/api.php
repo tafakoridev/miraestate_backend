@@ -65,8 +65,11 @@ Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsBy
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
        //commodity exp
+       
+    Route::post('/client/commodities/{id}', [CommodityController::class, 'clientChangePublish']);
     Route::get('/checkProfile', [UserController::class, 'checkProfile']);
-
+    Route::get('/client/commodities', [CommodityController::class, 'indexClientCartable']);
+    Route::post('/client/rateagent', [AgentController::class, 'clientRateAgent']);
     Route::post('/commodities/store/ex', [CommodityController::class, 'storeEx']);
     Route::post('/set-photo-agent', [UserController::class, 'setPhotoAgent']);
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
@@ -111,6 +114,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::resource('users', UserController::class);
     Route::post('/savetocategory/{id}', [CategoryController::class, 'saveFieldsToCategory']);
+    Route::post('/admin/commodities/{id}', [CommodityController::class, 'adminChangePublish']);
+    Route::get('/admin/commodities', [CommodityController::class, 'indexAdminCartable']);
+    Route::get('/admin/comments', [AgentController::class, 'getAllRowsWithCommentAndRate']);
 });
 
 

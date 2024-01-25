@@ -21,7 +21,42 @@ class CommodityController extends Controller
     public function index()
     {
         $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
-            ->where('expired_at', '>', now()) // Retrieve records where expired_at is in the future
+            // ->where('expired_at', '>', now()) // Retrieve records where expired_at is in the future
+           
+            ->where('published', '2') // Retrieve records where expired_at is in the future
+            ->orderBy("id", 'DESC')
+            ->get();
+        return response(['commodities' => $commodities], Response::HTTP_OK);
+    }
+
+    public function adminChangePublish(Request $request, $id)
+    {
+        Commodity::where('id', $id)->update(['published' => 2, 'price'=> $request->price]);
+        return response(['retval' => true], Response::HTTP_OK);
+    }
+
+    public function clientChangePublish(Request $request, $id)
+    {
+        $user = $request->user();
+        $result = Commodity::where(['id' => $id, 'user_id' => $user->id])->update(['published' => 1]);
+        return response(['retval' => $result], Response::HTTP_OK);
+    }
+
+    public function indexClientCartable(Request $request)
+    {
+        $user = $request->user();
+        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+            ->where('user_id', $user->id) // Retrieve records where expired_at is in the future
+            ->where('published', '0') // Retrieve records where expired_at is in the future
+            ->orderBy("id", 'DESC')
+            ->get();
+        return response(['commodities' => $commodities], Response::HTTP_OK);
+    }
+
+    public function indexAdminCartable()
+    {
+        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+            ->where('published', '1')
             ->orderBy("id", 'DESC')
             ->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);

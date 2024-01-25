@@ -40,6 +40,30 @@ class AgentController extends Controller
         }
     }
 
+    function clientRateAgent(Request $request)
+    {
+        $user = $request->user();
+        $agentDesk = AgentDesk::where(['agentable_id' => $request->id])->first();
+        $commodity = Commodity::where('user_id', $user->id)->where('id', $request->id)->count();
+        if ($commodity)
+        {
+            $agentDesk->comment = $request->comment;
+            $agentDesk->rate = $request->rate;
+            $agentDesk->save();
+            return response()->json(['result' => "updated", "retval" => true], 200);
+        }
+        return response()->json(['result' => "Not user agent", "retval" => false], 401);
+    }
+
+    function getAllRowsWithCommentAndRate()
+    {
+        $comments = AgentDesk::whereNotNull('comment')
+        ->whereNotNull('rate')
+        ->with('agent')
+        ->get();
+        return $comments;
+    }
+
     static function rating()
     {
         $agents = User::where('role', 'agent')->get();
@@ -86,16 +110,16 @@ class AgentController extends Controller
         $selected = null;
         // Use usort without returning its result
         usort($rates, $compareByRate);
-        if(count($rates))
-        $selected = $rates[0];
+        if (count($rates))
+            $selected = $rates[0];
         if ($selected) {
             $selectedAgent = User::find($selected['id']);
             return $selectedAgent;
         }
         $selectedAgent = null;
         $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->get()->pluck('expertiese_id');
-        if(!empty($relatedAgents[0]))
-        $selectedAgent = User::find($relatedAgents[0]);
+        if (!empty($relatedAgents[0]))
+            $selectedAgent = User::find($relatedAgents[0]);
         return $selectedAgent;
     }
 }

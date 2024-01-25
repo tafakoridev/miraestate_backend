@@ -27,6 +27,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
+            $table->boolean("published")->default(false);
             $table->timestamps();
             $table->timestamp('expired_at')->nullable();
         });
