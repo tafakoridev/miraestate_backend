@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\WalletService;
 use App\Models\AgentDesk;
 use App\Models\AgentExpertise;
 use App\Models\AgentInformation;
@@ -11,6 +12,7 @@ use App\Models\Commodity;
 use App\Models\Department;
 use App\Models\Tender;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -292,8 +294,7 @@ class UserController extends Controller
                 ]);
 
                 $agentInformation->save();
-            }
-            else {
+            } else {
                 $agentExistsInformation->is_active = "deactive";
                 $agentExistsInformation->save();
             }
@@ -468,5 +469,15 @@ class UserController extends Controller
         $employee->delete();
 
         return response()->json(['message' => 'Employee record deleted successfully'], 200);
+    }
+
+
+    public function WalletBalance(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) throw new Exception("User Not found!", 1);
+
+        $wallet = new WalletService($user);
+        return $wallet->getBalance();
     }
 }

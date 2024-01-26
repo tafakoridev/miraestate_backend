@@ -22,8 +22,13 @@ return new class extends Migration
             $table->string("title");
             $table->longText("description");
             $table->text('decline')->nullable();
-            $table->date("start")->nullable();
-            $table->date("end")->nullable();
+            $table->text("picture")->nullable();
+            $table->text('address')->nullable();
+            $table->json("fields")->nullable();
+            $table->bigInteger("price")->default(0);
+            $table->timestamp("start")->nullable();
+            $table->timestamp("end")->nullable();
+            $table->boolean("is_active")->default(false);
             $table->timestamps();
         });
     }

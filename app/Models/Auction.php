@@ -16,9 +16,20 @@ class Auction extends Model
         'title',
         'description',
         'decline',
+        'address',
+        'price',
+        'fields',
+        'picture',
         'start',
         'end',
+        'is_active',
     ];
+
+    
+    public function agentUser()
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
 
     public function agent()
     {

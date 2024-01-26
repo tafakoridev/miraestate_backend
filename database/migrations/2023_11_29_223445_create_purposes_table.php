@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('purposes', function (Blueprint $table) {
             $table->id();
             $table->text('description');
+            $table->bigInteger('price');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('purposeable_id');
             $table->string('purposeable_type');

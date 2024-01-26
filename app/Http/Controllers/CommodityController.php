@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\WalletService;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Commodity;
 use App\Models\Tender;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -71,9 +73,9 @@ class CommodityController extends Controller
     public function indexByCityAndType($city_id, $type)
     {
         if ($type === CommodityController::Auction)
-            $items = Auction::with(['category', 'agent.agent',])->get();
+            $items = Auction::with(['category', 'agent.agent',])->where('is_active', 1)->get();
         if ($type === CommodityController::Tender)
-            $items = Tender::with(['category', 'agent.agent',])->get();
+            $items = Tender::with(['category', 'agent.agent',])->where('is_active', 1)->get();
         else if ($type === CommodityController::Commodity)
             $items = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->where('expired_at', '>', now())->get();
         return response(['commodities' => $items], Response::HTTP_OK);
@@ -100,9 +102,9 @@ class CommodityController extends Controller
         // Call the recursive function for the main item
         $this->extractIds($data, $idArray);
         if ($type === CommodityController::Auction)
-            $items = Auction::with(['category', 'agent.agent',])->whereIn("category_id", $idArray)->get();
+            $items = Auction::with(['category', 'agent.agent',])->whereIn("category_id", $idArray)->where('is_active', 1)->get();
         if ($type === CommodityController::Tender)
-            $items = Tender::with(['category', 'agent.agent',])->whereIn("category_id", $idArray)->get();
+            $items = Tender::with(['category', 'agent.agent',])->whereIn("category_id", $idArray)->where('is_active', 1)->get();
         else if ($type === CommodityController::Commodity)
             $items = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->whereIn("category_id", $idArray)->where('expired_at', '>', now())->get();
         return response(['commodities' => $items], Response::HTTP_OK);
@@ -213,7 +215,10 @@ class CommodityController extends Controller
     public function storeEx(Request $request)
     {
         $user = $request->user();
-
+        if(!$user) throw new Exception("Error Processing Request", 1);
+        
+        $wallet = new WalletService($user);
+        $balance = $wallet->getBalance();
         $validatedData = $request->validate([
             'title' => 'string|max:255',
             'description' => 'string',
@@ -232,6 +237,12 @@ class CommodityController extends Controller
             return json_encode(['error' => "کارشناس مرتبط برای  شما پیدا نشد، با پشتیبانی تماس بگیرید"], JSON_UNESCAPED_UNICODE);
         }
 
+        $category = Category::find($validatedData['category_id']);
+       
+        if ($category->price > $balance) {
+            return json_encode(['error' => "مبلغ کیف پول شما کمتر از هزینه کارشناسی است! لطفا کیف پول خود را شارژ نمایید."], JSON_UNESCAPED_UNICODE);
+        }
+        $wallet->withdraw($category->price);
         $agent_id = $agent->id;
 
         $commodity = Commodity::create([

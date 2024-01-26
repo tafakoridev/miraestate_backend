@@ -16,8 +16,13 @@ class Tender extends Model
         'title',
         'description',
         'decline',
+        'address',
+        'price',
+        'fields',
+        'picture',
         'start',
         'end',
+        'is_active',
     ];
 
     public function agentUser()
@@ -37,8 +42,9 @@ class Tender extends Model
 
     public function purpose()
     {
-        return $this->morphMany(Purpose::class, 'purposeable');
+        return $this->morphMany(Purpose::class, 'purposeable')->orderBy('price', 'desc'); // or 'desc' for descending order
     }
+    
 
     public function category()
     {

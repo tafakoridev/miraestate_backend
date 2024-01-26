@@ -25,7 +25,7 @@ return new class extends Migration
             
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
-
+            $table->bigInteger('wallet')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Purpose extends Model
 {
     use HasFactory;
-    protected $fillable = ['description', 'user_id'];
+    protected $fillable = ['description', 'user_id', 'price'];
 
     
     public function purposeable()

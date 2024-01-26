@@ -6,16 +6,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CommodityController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EducationController;
+use App\Http\Controllers\OptionController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TenderController;
 use App\Http\Controllers\UserController;
-use App\Models\Education;
+use App\Http\Services\WalletService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,6 +24,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::get('/wallet/balance', [UserController::class, 'WalletBalance'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     $user = User::where('id', $request->user()->id)->with(['information', 'city', 'educations', 'employees'])->first();
@@ -52,20 +52,22 @@ Route::resource('cities', CityController::class);
 
 Route::get('/auctions', [AuctionController::class, 'index']);
 Route::get('/auctions/{id}', [AuctionController::class, 'show']);
+Route::get('/auctions/byuser/list', [AuctionController::class, 'indexByUser'])->middleware("auth:sanctum");
 Route::get('/tenders/byuser/list', [TenderController::class, 'indexByUser'])->middleware("auth:sanctum");
 Route::get('/tenders', [TenderController::class, 'index']);
+
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
 Route::get('/commodities', [CommodityController::class, 'index']);
 Route::get('/commodities/{id}', [CommodityController::class, 'show']);
- 
+
 Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 Route::get('/users/agents/list', [UserController::class, 'agents']);
 Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsByCategory']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-       //commodity exp
-       
+    //commodity exp
+
     Route::post('/client/commodities/{id}', [CommodityController::class, 'clientChangePublish']);
     Route::get('/checkProfile', [UserController::class, 'checkProfile']);
     Route::get('/client/commodities', [CommodityController::class, 'indexClientCartable']);
@@ -84,6 +86,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/users/role/set', [UserController::class, 'setRole']);
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
+    Route::post('/tenders/pay/fee', [TenderController::class, 'PayFee']);
+    Route::post('/tenders/client/set/end', [TenderController::class, 'TenderEnd']);
+
+    Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
+    Route::post('/auctions/pay/fee', [AuctionController::class, 'PayFee']);
+    Route::post('/auctions/client/set/end', [AuctionController::class, 'TenderEnd']);
 
 
     Route::put('/users/update/{id}', [UserController::class, 'update']);
@@ -111,12 +119,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('users/{userId}/employees/{employeeId}', [UserController::class, 'deleteEmployee']);
 });
 
+Route::get('/options/{id}', [OptionController::class, 'show']);
 Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::resource('users', UserController::class);
     Route::post('/savetocategory/{id}', [CategoryController::class, 'saveFieldsToCategory']);
     Route::post('/admin/commodities/{id}', [CommodityController::class, 'adminChangePublish']);
     Route::get('/admin/commodities', [CommodityController::class, 'indexAdminCartable']);
     Route::get('/admin/comments', [AgentController::class, 'getAllRowsWithCommentAndRate']);
+    Route::get('/tenders/byadmin/list', [TenderController::class, 'indexUnPublished']);
+    Route::get('/auctions/byadmin/list', [AuctionController::class, 'indexUnPublished']);
+    // Option Routes
+    Route::get('/options', [OptionController::class, 'index']);
+    Route::get('tenders/admin/accept/{id}', [TenderController::class, 'acceptAndPublish']);
+    Route::get('auctions/admin/accept/{id}', [AuctionController::class, 'acceptAndPublish']);
+    Route::post('/options', [OptionController::class, 'store']);
+    Route::put('/options/{id}', [OptionController::class, 'update']);
+    Route::delete('/options/{id}', [OptionController::class, 'destroy']);
 });
 
 
