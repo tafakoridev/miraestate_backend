@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\NotificationService;
 use App\Http\Services\WalletService;
 use App\Models\Option;
 use App\Models\Purpose;
@@ -34,7 +35,7 @@ class TenderController extends Controller
     public function indexByUser(Request $request)
     {
         $user = $request->user();
-        $tenders = Tender::where('user_id', $user->id)->with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser'])->orderBy('id', 'DESC')->get();
+        $tenders = Tender::where('user_id', $user->id)->with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser', 'winner'])->orderBy('id', 'DESC')->get();
         return response(['tenders' => $tenders], Response::HTTP_OK);
     }
 
@@ -54,7 +55,28 @@ class TenderController extends Controller
         $id = $request->id;
         $tender = Tender::find($id);
         $purpose = new Purpose(['description' => $request->description, 'user_id' => $user->id, 'price' => $request->price]);
+        $notification = new NotificationService($tender->user_id);
+        $notification->send("پیشنهاد جدید به مناقصه {$tender->title} توسط {$user->name} افزوده شد.");
         $tender->purpose()->save($purpose);
+        return true;
+    }
+
+    public function PurposeAccept(Request $request)
+    {
+        $user = $request->user();
+        $sender_id = $request->user_id;
+        $id = $request->id;
+        $tender = Tender::where('id', $id)->first();
+        $tender->winner_id = $sender_id;
+        $tender->save();
+        $notification = new NotificationService($sender_id);
+        $notification->send("
+        پیشنهاد شما برای مناقصه
+        {$tender->title} 
+        توسط 
+        {$user->name}
+        پذیرفته شد
+        .");
         return true;
     }
 

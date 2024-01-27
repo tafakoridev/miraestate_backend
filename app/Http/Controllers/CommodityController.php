@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\NotificationService;
 use App\Http\Services\WalletService;
 use App\Models\Auction;
 use App\Models\Category;
@@ -211,6 +212,20 @@ class CommodityController extends Controller
         return response(['commodity' => $commodity], Response::HTTP_CREATED);
     }
 
+    public function AgentReviewed(Request $request) {
+        $user = $request->user();
+        $commodity = Commodity::where(['id' => $request->id, 'user_id' => $user->id])->first();
+        $commodity->local = 3;
+        $commodity->save();
+        $notification = new NotificationService($commodity->agent_id);
+        $notification->send("
+        بازدید در محل  کارشناسی 
+        {$commodity->title} 
+        توسط
+         {$user->name} تایید شد");
+        return response(['retval' => true], Response::HTTP_CREATED);
+    }
+
 
     public function storeEx(Request $request)
     {
@@ -223,6 +238,7 @@ class CommodityController extends Controller
             'title' => 'string|max:255',
             'description' => 'string',
             'price' => '',
+            'local' => '',
             'fields' => '',
             'category_id' => 'exists:categories,id',
             'city_id' => 'exists:cities,id',
@@ -253,6 +269,7 @@ class CommodityController extends Controller
             'price' => $validatedData['price'],
             'city_id' => $validatedData['city_id'],
             'agent_id' => $agent_id,
+            'local' => $validatedData['local'],
             'picture' => "empty",
             'fields' => $validatedData['fields'],
             'expired_at' => Carbon::now()->addDays(30)

@@ -23,6 +23,7 @@ class Auction extends Model
         'start',
         'end',
         'is_active',
+        'winner_id',
     ];
 
     
@@ -30,6 +31,13 @@ class Auction extends Model
     {
         return $this->belongsTo(User::class, 'agent_id');
     }
+
+    
+    public function winner()
+    {
+        return $this->belongsTo(User::class, 'winner_id');
+    }
+
 
     public function agent()
     {

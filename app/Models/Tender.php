@@ -30,6 +30,11 @@ class Tender extends Model
         return $this->belongsTo(User::class, 'agent_id');
     }
 
+    public function winner()
+    {
+        return $this->belongsTo(User::class, 'winner_id');
+    }
+
     public function agent()
     {
         return $this->morphOne(AgentDesk::class, 'agentable');

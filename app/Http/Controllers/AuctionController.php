@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\NotificationService;
 use App\Http\Services\WalletService;
 use Illuminate\Http\Request;
 use App\Models\Auction; // Make sure to use the correct namespace for your Auction model
@@ -38,7 +39,7 @@ class AuctionController extends Controller
     public function indexByUser(Request $request)
     {
         $user = $request->user();
-        $auctions = Auction::where('user_id', $user->id)->with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser'])->orderBy('id', 'DESC')->get();
+        $auctions = Auction::where('user_id', $user->id)->with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser', 'winner'])->orderBy('id', 'DESC')->get();
         return response(['auctions' => $auctions], Response::HTTP_OK);
     }
 
@@ -49,6 +50,25 @@ class AuctionController extends Controller
         $auction = Auction::find($id);
         $purpose = new Purpose(['description' => $request->description, 'user_id' => $user->id, 'price' => $request->price]);
         $auction->purpose()->save($purpose);
+        return true;
+    }
+
+    public function PurposeAccept(Request $request)
+    {
+        $user = $request->user();
+        $sender_id = $request->user_id;
+        $id = $request->id;
+        $auction = Auction::where('id', $id)->first();
+        $auction->winner_id = $sender_id;
+        $auction->save();
+        $notification = new NotificationService($sender_id);
+        $notification->send("
+        پیشنهاد شما برای مزایده
+        {$auction->title} 
+        توسط 
+        {$user->name}
+        پذیرفته شد
+        .");
         return true;
     }
 

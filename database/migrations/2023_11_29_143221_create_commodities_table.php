@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('price', 65, 2);
             $table->unsignedBigInteger('city_id');
             $table->string('picture');
+            $table->boolean('local')->default(0);
             $table->json("fields")->nullable();
             $table->unsignedBigInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('users')->onDelete('cascade');

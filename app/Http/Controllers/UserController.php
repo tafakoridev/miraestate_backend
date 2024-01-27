@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\NotificationService;
 use App\Http\Services\WalletService;
 use App\Models\AgentDesk;
 use App\Models\AgentExpertise;
@@ -9,7 +10,6 @@ use App\Models\AgentInformation;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Commodity;
-use App\Models\Department;
 use App\Models\Tender;
 use App\Models\User;
 use Exception;
@@ -82,10 +82,18 @@ class UserController extends Controller
         return response($response, Response::HTTP_OK);
     }
 
+    public function seenNotifications(Request $request) {
+        $user = $request->user();
+        $user_id =  $user->id;
+        $notification = new NotificationService($user_id);
+        $notification->seenAll();
+    }
+
     public function agentsInCounter(Request $request)
     {
         $user = $request->user();
         $user_id =  $user->id;
+        $notification = new NotificationService($user_id);
         $tendersCount = 0;
         $auctionsCount = 0;
         $commoditiesCount = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->count();
@@ -99,6 +107,7 @@ class UserController extends Controller
             'tendersCount' => $tendersCount,
             'auctionsCount' => $auctionsCount,
             'commoditiesCount' => $commoditiesCount,
+            'notificationsCount' => count($notification->list()),
             'tendersCountDecline' => $tendersCountDecline,
             'auctionsCountDecline' => $auctionsCountDecline,
             'commoditiesCountDecline' => $commoditiesCountDecline,
@@ -109,7 +118,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         $user_id = $user->id;
-
+        $notification = new NotificationService($user_id);
         $tenders = [];
         $auctions = [];
         $commodities = Commodity::where('agent_id', $user_id)->whereNotIn('id', AgentDesk::pluck('agentable_id')->toArray())->get(['id', 'title']);
@@ -123,6 +132,7 @@ class UserController extends Controller
             'tenders' => $tenders,
             'auctions' => $auctions,
             'commodities' => $commodities,
+            'notifications' => $notification->list(),
             'tendersDecline' => $tendersDecline,
             'auctionsDecline' => $auctionsDecline,
             'commoditiesDecline' => $commoditiesDecline,

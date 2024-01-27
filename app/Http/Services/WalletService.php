@@ -28,7 +28,7 @@ class WalletService {
     public function withdraw(float $amount)
     {
         // Ensure the amount is positive
-        if ($amount > 0) {
+        if ($amount >= 0) {
             // Ensure the user has sufficient balance
             if ($this->user->wallet >= $amount) {
                 // Decrease the wallet balance

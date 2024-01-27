@@ -29,6 +29,8 @@ return new class extends Migration
             $table->timestamp("start")->nullable();
             $table->timestamp("end")->nullable();
             $table->boolean("is_active")->default(false);
+            $table->unsignedBigInteger('winner_id')->nullable();
+            $table->foreign('winner_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

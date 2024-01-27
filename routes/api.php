@@ -68,6 +68,7 @@ Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsBy
 Route::group(['middleware' => ['auth:sanctum']], function () {
     //commodity exp
 
+    Route::post('/client/commodities/reviewed', [CommodityController::class, 'AgentReviewed']);
     Route::post('/client/commodities/{id}', [CommodityController::class, 'clientChangePublish']);
     Route::get('/checkProfile', [UserController::class, 'checkProfile']);
     Route::get('/client/commodities', [CommodityController::class, 'indexClientCartable']);
@@ -80,18 +81,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/users/agents/in', [UserController::class, 'agentsIn']);
     Route::get('/users/agents/in/counter', [UserController::class, 'agentsInCounter']);
     Route::get('/users/agents/in/title', [UserController::class, 'agentsInTitle']);
+    Route::get('/users/agents/in/seen', [UserController::class, 'seenNotifications']);
     Route::put('/users/agents/information/{agent_id}', [UserController::class, 'agentInformationUpdate']);
     Route::resource('auctions', AuctionController::class)->except(['show', 'index']);
     Route::resource('tenders', TenderController::class)->except(['show', 'index']);
     Route::post('/users/role/set', [UserController::class, 'setRole']);
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
+    Route::post('/tenders/purpose/accept', [TenderController::class, 'PurposeAccept']);
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
     Route::post('/tenders/pay/fee', [TenderController::class, 'PayFee']);
     Route::post('/tenders/client/set/end', [TenderController::class, 'TenderEnd']);
 
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
+    Route::post('/auctions/purpose/accept', [AuctionController::class, 'PurposeAccept']);
     Route::post('/auctions/pay/fee', [AuctionController::class, 'PayFee']);
-    Route::post('/auctions/client/set/end', [AuctionController::class, 'TenderEnd']);
+    Route::post('/auctions/client/set/end', [AuctionController::class, 'AuctionEnd']);
 
 
     Route::put('/users/update/{id}', [UserController::class, 'update']);
