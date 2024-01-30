@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\AgentExpertise;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Category;
@@ -44,6 +46,26 @@ class CategoryController extends Controller
         $category = Category::create($validatedData);
 
         return response(['category' => $category], Response::HTTP_CREATED);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function AgentUpdate(Request $request)
+    {
+        $user = $request->user();
+        $agent_id = $request->agent_id ?? $user->id;
+        $categories = $request->categories;
+        $deleted = AgentExpertise::where('expertiese_id', $agent_id)->delete();
+
+        foreach ($categories as $key => $category_id) {
+            $category = Category::find($category_id);
+            $agentExpertise = new AgentExpertise();
+            $agentExpertise->expertiese_id = $agent_id;
+            $agentExpertise->field()->associate($category);
+            $agentExpertise->save();
+        }
+        return response(['retval' => true], Response::HTTP_CREATED);
     }
 
     /**

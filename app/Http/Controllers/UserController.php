@@ -82,7 +82,8 @@ class UserController extends Controller
         return response($response, Response::HTTP_OK);
     }
 
-    public function seenNotifications(Request $request) {
+    public function seenNotifications(Request $request)
+    {
         $user = $request->user();
         $user_id =  $user->id;
         $notification = new NotificationService($user_id);
@@ -352,12 +353,24 @@ class UserController extends Controller
     public function getCategoryExpertises(Request $request)
     {
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+        $categoryExpertises = $user->categoryExpertises()->with('field')->get();
 
+        return response()->json(['category_expertises' => $categoryExpertises]);
+    }
+
+    public function getCategoryExpertisesByid(Request $request, $agent_id)
+    {
+        $user = $request->user();
         if (!$user) {
             return response()->json(['error' => 'User not authenticated'], 401);
         }
 
-        $categoryExpertises = $user->categoryExpertises()->with('field')->get();
+        $agent = User::where('id', $agent_id)->first();
+
+        $categoryExpertises = $agent->categoryExpertises()->with('field')->get();
 
         return response()->json(['category_expertises' => $categoryExpertises]);
     }

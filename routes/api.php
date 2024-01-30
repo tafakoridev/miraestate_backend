@@ -69,6 +69,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //commodity exp
 
     Route::post('/client/commodities/reviewed', [CommodityController::class, 'AgentReviewed']);
+    Route::post('/categories/agent/update', [CategoryController::class, 'AgentUpdate']);
     Route::post('/client/commodities/{id}', [CommodityController::class, 'clientChangePublish']);
     Route::get('/checkProfile', [UserController::class, 'checkProfile']);
     Route::get('/client/commodities', [CommodityController::class, 'indexClientCartable']);
@@ -105,6 +106,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('commodities/update/{id}', [CommodityController::class, 'update']);
 
     Route::get('/user/agent/category-expertises', [UserController::class, 'getCategoryExpertises']);
+    Route::get('/user/agent/category-expertises/{agent_id}', [UserController::class, 'getCategoryExpertisesByid']);
     Route::get('/user/agent/department-expertises', [UserController::class, 'getDepartmentExpertises']);
     Route::put('/user/categories/{categoryId}/update-price', [UserController::class, 'handleSavePrice']);
     Route::put('/user/departments/{categoryId}/update-price', [UserController::class, 'handleSaveDepartmentPrice']);
