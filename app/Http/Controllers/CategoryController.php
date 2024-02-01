@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgentExpertise;
+use App\Models\AgentInformation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Category;
@@ -65,6 +66,13 @@ class CategoryController extends Controller
             $agentExpertise->field()->associate($category);
             $agentExpertise->save();
         }
+        $agentExistsInformation = AgentInformation::where('agent_id', $agent_id)->first();
+        if($agentExistsInformation)
+        {
+            $agentExistsInformation->is_active = "deactive";
+        $agentExistsInformation->save();
+        }
+
         return response(['retval' => true], Response::HTTP_CREATED);
     }
 

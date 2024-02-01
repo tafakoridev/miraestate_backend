@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Services\NotificationService;
 use App\Http\Services\WalletService;
+use App\Models\AgentDesk;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Commodity;
@@ -59,10 +60,16 @@ class CommodityController extends Controller
     public function indexAdminCartable()
     {
         $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
-            ->where('published', '1')
+            ->whereNotNull('agent_id')
             ->orderBy("id", 'DESC')
             ->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
+    }
+
+    public function AcceptByAdmin(Request $request)
+    {
+        $commodities = AgentDesk::where(['agentable_id' => $request->id])->update(['accepted' => 1]);
+        return response(['retval' => true], Response::HTTP_OK);
     }
 
     public function indexByCity($city_id)

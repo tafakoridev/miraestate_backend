@@ -68,6 +68,9 @@ Route::get('/users/agents/list/{category_id}', [UserController::class, 'agentsBy
 Route::group(['middleware' => ['auth:sanctum']], function () {
     //commodity exp
 
+    Route::get('/tenders/my/purposes', [UserController::class, 'myTenderPurposes']);
+    Route::get('/auctions/my/purposes', [UserController::class, 'myAuctionPurposes']);
+    Route::get('/purposes/users/list/{id}', [UserController::class, 'purposeUsers']);
     Route::post('/client/commodities/reviewed', [CommodityController::class, 'AgentReviewed']);
     Route::post('/categories/agent/update', [CategoryController::class, 'AgentUpdate']);
     Route::post('/client/commodities/{id}', [CommodityController::class, 'clientChangePublish']);
@@ -78,6 +81,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/set-photo-agent', [UserController::class, 'setPhotoAgent']);
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
     Route::post('/users/agents/decline', [UserController::class, 'AgentDecline']);
+    Route::post('/users/agents/accept', [UserController::class, 'AgentAccept']);
     Route::post('/users/agents/setagent', [UserController::class, 'setAgent']);
     Route::get('/users/agents/in', [UserController::class, 'agentsIn']);
     Route::get('/users/agents/in/counter', [UserController::class, 'agentsInCounter']);
@@ -131,6 +135,7 @@ Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::post('/savetocategory/{id}', [CategoryController::class, 'saveFieldsToCategory']);
     Route::post('/admin/commodities/{id}', [CommodityController::class, 'adminChangePublish']);
     Route::get('/admin/commodities', [CommodityController::class, 'indexAdminCartable']);
+    Route::post('/admin/commodity/agent/accept', [CommodityController::class, 'AcceptByAdmin']);
     Route::get('/admin/comments', [AgentController::class, 'getAllRowsWithCommentAndRate']);
     Route::get('/tenders/byadmin/list', [TenderController::class, 'indexUnPublished']);
     Route::get('/auctions/byadmin/list', [AuctionController::class, 'indexUnPublished']);
@@ -141,6 +146,8 @@ Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::post('/options', [OptionController::class, 'store']);
     Route::put('/options/{id}', [OptionController::class, 'update']);
     Route::delete('/options/{id}', [OptionController::class, 'destroy']);
+    Route::post('/tenders/admin/set/end', [TenderController::class, 'TenderEndAdmin']);
+    Route::post('/auctions/admin/set/end', [AuctionController::class, 'AuctionEndAdmin']);
 });
 
 

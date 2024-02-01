@@ -9,6 +9,7 @@ use App\Models\Purpose;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Tender;
+use App\Models\User;
 use Exception;
 
 class TenderController extends Controller
@@ -26,7 +27,7 @@ class TenderController extends Controller
      */
     public function indexUnPublished()
     {
-        $tenders = Tender::with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser'])->where('is_active', 0)->orderBy('id', 'DESC')->get();
+        $tenders = Tender::with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser', 'winner'])->orderBy('is_active', 'ASC')->get();
         return response(['tenders' => $tenders], Response::HTTP_OK);
     }
     /**
@@ -104,13 +105,34 @@ class TenderController extends Controller
     {
         $user = $request->user();
         if(!$user) throw new Exception("Error Processing Request", 1);
+        $id = $request->id;
+        $tender = Tender::find($id);
+        $tender->is_active = 5;
+        $tender->save();
+      
+        return json_encode(['msg' => "درخواست پایان مناقصه ثبت شد"], JSON_UNESCAPED_UNICODE);;
+    }
+
+    public function TenderEndAdmin(Request $request)
+    {
+        $user = User::find($request->user_id);
+        if(!$user) throw new Exception("Error Processing Request", 1);
         $wallet = new WalletService($user);
         $id = $request->id;
         $tender = Tender::find($id);
-        $tender->is_active = 3;
-        $tender->save();
         $options = Option::find(1);
         $percent = $options->deposit_percentage / 100;
+        $purposes = Purpose::where(['purposeable_id' => $id, 'purposeable_type' => 'App\Models\Tender'])->get();
+        foreach ($purposes as $key => $purpose) {
+            if($tender->winner_id !== $purpose->user_id)
+            {
+                $user = User::find($purpose->user_id);
+                $user_wallet = new WalletService($user);
+                $user_wallet->deposit($tender->price * $percent);
+            }
+        }
+        $tender->is_active = 3;
+        $tender->save();
         $wallet->deposit($tender->price * $percent);
         return json_encode(['msg' => "هزینه با موفقیت به کیف پول شما پرداخت شد"], JSON_UNESCAPED_UNICODE);;
     }

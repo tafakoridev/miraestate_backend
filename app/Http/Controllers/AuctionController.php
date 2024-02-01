@@ -30,7 +30,7 @@ class AuctionController extends Controller
      */
     public function indexUnPublished()
     {
-        $auctions = Auction::with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser'])->where('is_active', 0)->orderBy('id', 'DESC')->get();
+        $auctions = Auction::with(['agent.agent', 'user', 'category', 'purpose.user', 'agentUser', 'winner'])->orderBy('is_active', 'ASC')->get();
         return response(['auctions' => $auctions], Response::HTTP_OK);
     }
     /**

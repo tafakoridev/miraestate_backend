@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('agentable_type');
             $table->string('comment')->nullable();
             $table->boolean('rate')->default(1);
+            $table->boolean('accepted')->default(1);
 
             $table->unsignedBigInteger('agent_id');
             $table->json("fields")->nullable();

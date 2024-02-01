@@ -10,6 +10,7 @@ use App\Models\AgentInformation;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Models\Commodity;
+use App\Models\Purpose;
 use App\Models\Tender;
 use App\Models\User;
 use Exception;
@@ -221,6 +222,27 @@ class UserController extends Controller
             $commodity->save();
         }
         return true;
+    }
+
+
+    // agent decline
+    public function AgentAccept(Request $request)
+    {
+        $agent = $request->user();
+        $id = $request->id;
+        $commodity = Commodity::find($id);
+        $user_id = $commodity->user_id;
+        $notification = new NotificationService($user_id);
+        $commodity->accepted = 1;
+        $commodity->save();
+        $notification->send("درخواست کارشناسی {$commodity->title} توسط کارشناس تایید شد");
+        return true;
+    }
+
+    public function purposeUsers(Request $request, $id){
+        $user = $request->user();
+        $purposed = Purpose::where(['purposeable_id' => $id, 'user_id' => $user->id])->count();
+        return $purposed;
     }
     // agent set
     public function setagent(Request $request)
@@ -502,5 +524,22 @@ class UserController extends Controller
 
         $wallet = new WalletService($user);
         return $wallet->getBalance();
+    }
+
+
+    public function myTenderPurposes(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) throw new Exception("User Not found!", 1);
+        $purposes = Purpose::where(['user_id' => $user->id, 'purposeable_type' => 'App\Models\Tender'])->with(['purposeable.winner', 'purposeable.user'])->get();
+        return $purposes;
+    }
+
+    public function myAuctionPurposes(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) throw new Exception("User Not found!", 1);
+        $purposes = Purpose::where(['user_id' => $user->id, 'purposeable_type' => 'App\Models\Auction'])->with(['purposeable.winner', 'purposeable.user'])->get();
+        return $purposes;
     }
 }
