@@ -142,7 +142,8 @@ class TenderController extends Controller
             {
                 $user = User::find($purpose->user_id);
                 $user_wallet = new WalletService($user);
-                $user_wallet->deposit($tender->price * $percent);
+                $price = $tender->price * $percent;
+                $user_wallet->deposit($price);
             }
         }
         $tender->is_active = 3;

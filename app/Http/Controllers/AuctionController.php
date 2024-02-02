@@ -137,7 +137,8 @@ class AuctionController extends Controller
             {
                 $user = User::find($purpose->user_id);
                 $user_wallet = new WalletService($user);
-                $user_wallet->deposit($auction->price * $percent);
+                $price = $auction->price * $percent;
+                $user_wallet->deposit($price);
             }
         }
         $auction->is_active = 3;
