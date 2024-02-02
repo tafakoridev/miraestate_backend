@@ -95,8 +95,15 @@ class AgentController extends Controller
     {
         $agentDesksIds = AgentDesk::get()->pluck('agentable_id');
         $commoditiesIds = Commodity::whereNotIn('id', $agentDesksIds)->get();
-        $freeAgents = array_values(array_unique($commoditiesIds->pluck('agent_id')->all()));
-        $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->whereIn('expertiese_id', $freeAgents)->get()->pluck('expertiese_id');
+        $asirAgents = array_values(array_unique($commoditiesIds->pluck('agent_id')->all()));
+        $numericAsir = [];
+        foreach($asirAgents as $agentasir) {
+            if(is_numeric($agentasir))
+            array_push($numericAsir, $agentasir);
+        }
+
+        $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->whereNotIn('expertiese_id', $numericAsir)->get()->pluck('expertiese_id');
+        $relatedAgents = array_values(array_unique($relatedAgents->all()));
         $rates = [];
 
         foreach ($relatedAgents as $agentId) {
