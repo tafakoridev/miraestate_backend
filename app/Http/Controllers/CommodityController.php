@@ -74,7 +74,7 @@ class CommodityController extends Controller
 
     public function indexByCity($city_id)
     {
-        $commodities = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->where('expired_at', '>', now())->get();
+        $commodities = Commodity::with(['city', 'category', 'agent.agent',])->where('expired_at', '>', now())->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
     }
 
@@ -85,7 +85,7 @@ class CommodityController extends Controller
         if ($type === CommodityController::Tender)
             $items = Tender::with(['category', 'agent.agent',])->where('is_active', 1)->get();
         else if ($type === CommodityController::Commodity)
-            $items = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->where('expired_at', '>', now())->get();
+            $items = Commodity::with(['city', 'category', 'agent.agent',])->where('expired_at', '>', now())->get();
         return response(['commodities' => $items], Response::HTTP_OK);
     }
 
@@ -106,7 +106,7 @@ class CommodityController extends Controller
         $data = json_decode(json_encode($category), true, 512, JSON_UNESCAPED_UNICODE);
         // Initialize the array to store IDs
         $idArray = [];
-        $items = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->whereIn("category_id", $idArray)->where('expired_at', '>', now())->get();
+        $items = Commodity::with(['city', 'category', 'agent.agent',])->whereIn("category_id", $idArray)->where('expired_at', '>', now())->get();
         // Call the recursive function for the main item
         $this->extractIds($data, $idArray);
         if ($type === CommodityController::Auction)
@@ -114,7 +114,7 @@ class CommodityController extends Controller
         if ($type === CommodityController::Tender)
             $items = Tender::with(['category', 'agent.agent',])->whereIn("category_id", $idArray)->where('is_active', 1)->get();
         else if ($type === CommodityController::Commodity)
-            $items = Commodity::where('city_id', $city_id)->with(['city', 'category', 'agent.agent',])->whereIn("category_id", $idArray)->where('expired_at', '>', now())->get();
+            $items = Commodity::with(['city', 'category', 'agent.agent',])->whereIn("category_id", $idArray)->where('expired_at', '>', now())->get();
         return response(['commodities' => $items], Response::HTTP_OK);
     }
 
