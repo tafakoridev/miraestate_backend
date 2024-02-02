@@ -49,7 +49,7 @@ class CommodityController extends Controller
     public function indexClientCartable(Request $request)
     {
         $user = $request->user();
-        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'agentof', 'user'])
             ->where('user_id', $user->id) // Retrieve records where expired_at is in the future
             ->where('published', '0') // Retrieve records where expired_at is in the future
             ->orderBy("id", 'DESC')
@@ -59,7 +59,7 @@ class CommodityController extends Controller
 
     public function indexAdminCartable()
     {
-        $commodities = Commodity::with(['city', 'category', 'agent.agent','agentof', 'user'])
+        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'agentof', 'user'])
             ->whereNotNull('agent_id')
             ->orderBy("id", 'DESC')
             ->get();
