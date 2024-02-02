@@ -69,7 +69,7 @@ class AuctionController extends Controller
         توسط 
         {$user->name}
         پذیرفته شد
-        .");
+        .", "auctions_purpose");
         return true;
     }
 

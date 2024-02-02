@@ -10,11 +10,12 @@ class NotificationService
     {
         $this->userId = $userId;
     }
-    public function send( $text)
+    public function send($text, $route)
     {
         return Notification::create([
             'user_id' => $this->userId,
             'text' => $text,
+            'route' => $route,
         ]);
     }
 

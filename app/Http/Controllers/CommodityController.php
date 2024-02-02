@@ -229,7 +229,7 @@ class CommodityController extends Controller
         بازدید در محل  کارشناسی 
         {$commodity->title} 
         توسط
-         {$user->name} تایید شد");
+         {$user->name} تایید شد", "commodities");
         return response(['retval' => true], Response::HTTP_CREATED);
     }
 

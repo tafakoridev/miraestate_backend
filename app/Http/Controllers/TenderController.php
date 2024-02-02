@@ -57,7 +57,7 @@ class TenderController extends Controller
         $tender = Tender::find($id);
         $purpose = new Purpose(['description' => $request->description, 'user_id' => $user->id, 'price' => $request->price]);
         $notification = new NotificationService($tender->user_id);
-        $notification->send("پیشنهاد جدید به مناقصه {$tender->title} توسط {$user->name} افزوده شد.");
+        $notification->send("پیشنهاد جدید به مناقصه {$tender->title} توسط {$user->name} افزوده شد.", "tenders");
         $tender->purpose()->save($purpose);
         return true;
     }
@@ -77,7 +77,7 @@ class TenderController extends Controller
         توسط 
         {$user->name}
         پذیرفته شد
-        .");
+        .", "tenders_purpose");
         return true;
     }
 

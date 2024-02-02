@@ -235,7 +235,7 @@ class UserController extends Controller
         $notification = new NotificationService($user_id);
         $commodity->accepted = 1;
         $commodity->save();
-        $notification->send("درخواست کارشناسی {$commodity->title} توسط کارشناس تایید شد");
+        $notification->send("درخواست کارشناسی {$commodity->title} توسط کارشناس تایید شد", "commodities");
         return true;
     }
 
