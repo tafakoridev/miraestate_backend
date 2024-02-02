@@ -153,3 +153,7 @@ Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
 
 //agent controller
 Route::get('/rating', [AgentController::class, 'ratinggg']);
+
+
+
+Route::get('/bbbb/{categoryId}', [AgentController::class, 'bestAgent']);
