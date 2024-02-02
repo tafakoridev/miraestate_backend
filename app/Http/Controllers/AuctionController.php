@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Auction; // Make sure to use the correct namespace for your Auction model
 use App\Models\Option;
 use App\Models\Purpose;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Notifications\Action;
@@ -92,19 +93,40 @@ class AuctionController extends Controller
     }
 
 
+  
     public function AuctionEnd(Request $request)
     {
         $user = $request->user();
         if(!$user) throw new Exception("Error Processing Request", 1);
-        $wallet = new WalletService($user);
         $id = $request->id;
         $auction = Auction::find($id);
         $auction->is_active = 3;
         $auction->save();
+        return json_encode(['msg' => "درخواست پایان مزایده ثبت شد"], JSON_UNESCAPED_UNICODE);;
+    }
+
+    public function TenderEndAdmin(Request $request)
+    {
+        $user = User::find($request->user_id);
+        if(!$user) throw new Exception("Error Processing Request", 1);
+        $wallet = new WalletService($user);
+        $id = $request->id;
+        $auction = Auction::find($id);
         $options = Option::find(1);
         $percent = $options->deposit_percentage / 100;
+        $purposes = Purpose::where(['purposeable_id' => $id, 'purposeable_type' => 'App\Models\Auction'])->get();
+        foreach ($purposes as $key => $purpose) {
+            if($auction->winner_id !== $purpose->user_id)
+            {
+                $user = User::find($purpose->user_id);
+                $user_wallet = new WalletService($user);
+                $user_wallet->deposit($auction->price * $percent);
+            }
+        }
+        $auction->is_active = 3;
+        $auction->save();
         $wallet->deposit($auction->price * $percent);
-        return json_encode(['msg' => "هزینه با موفقیت به کیف پول شما پرداخت شد"], JSON_UNESCAPED_UNICODE);;
+        return json_encode(['msg' => "هزینه با موفقیت به کیف پول ها پرداخت شد"], JSON_UNESCAPED_UNICODE);;
     }
 
     /**
