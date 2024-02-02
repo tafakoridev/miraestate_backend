@@ -45,7 +45,8 @@ class AgentController extends Controller
         $user = $request->user();
         $agentDesk = AgentDesk::where(['agentable_id' => $request->id])->first();
         $commodity = Commodity::where('user_id', $user->id)->where('id', $request->id)->count();
-        if ($commodity) {
+        if ($commodity)
+        {
             $agentDesk->comment = $request->comment;
             $agentDesk->rate = $request->rate;
             $agentDesk->save();
@@ -57,9 +58,9 @@ class AgentController extends Controller
     function getAllRowsWithCommentAndRate()
     {
         $comments = AgentDesk::whereNotNull('comment')
-            ->whereNotNull('rate')
-            ->with('agent')
-            ->get();
+        ->whereNotNull('rate')
+        ->with('agent')
+        ->get();
         return $comments;
     }
 
@@ -95,14 +96,20 @@ class AgentController extends Controller
         $agentDesksIds = AgentDesk::get()->pluck('agentable_id');
         $commoditiesIds = Commodity::whereNotIn('id', $agentDesksIds)->get();
         $asirAgents = array_values(array_unique($commoditiesIds->pluck('agent_id')->all()));
+        $userIds = User::whereHas('information', function ($query) {
+            $query->where('profile_photo_url', '=', '/profileplaceholder.png');
+        })->pluck('id')->toArray();
+
         $numericAsir = [];
-        foreach ($asirAgents as $agentasir) {
-            if (is_numeric($agentasir))
-                array_push($numericAsir, $agentasir);
-        }
+        foreach($asirAgents as $agentasir) {
+            if(is_numeric($agentasir))
+            array_push($numericAsir, $agentasir);
+    }
+        $numericAsir = array_merge($userIds, $numericAsir);
 
         $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->whereNotIn('expertiese_id', $numericAsir)->get()->pluck('expertiese_id');
         $relatedAgents = array_values(array_unique($relatedAgents->all()));
+      
         $rates = [];
 
         foreach ($relatedAgents as $agentId) {
@@ -120,32 +127,13 @@ class AgentController extends Controller
             $selected = $rates[0];
         if ($selected) {
             $selectedAgent = User::find($selected['id']);
-
-            $user = $selectedAgent;
-            $agentInformation = $user->information;
-            if ($agentInformation && $agentInformation->profile_photo_url === '/profileplaceholder.png') {
-                // Profile photo is set to the placeholder, return an error
-                if($rates[1]) $selectedAgent = User::find($rates[1]['id']);
-            }
             return $selectedAgent;
         }
+       
         $selectedAgent = null;
-        $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->get()->pluck('expertiese_id');
-        if (!empty($relatedAgents[0]))
-            $selectedAgent = User::find($relatedAgents[0]);
-            $user = $selectedAgent;
-            $agentInformation = $user->information;
-            if ($agentInformation && $agentInformation->profile_photo_url === '/profileplaceholder.png') {
-                // Profile photo is set to the placeholder, return an error
-                if($relatedAgents[1]) $selectedAgent = User::find($relatedAgents[1]['id']);
-                else  $selectedAgent = null;
-            }
-      
-        // Check if AgentInformation exists for the user
-
-
-
-
+        // $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->get()->pluck('expertiese_id');
+        // if (!empty($relatedAgents[0]))
+        //     $selectedAgent = User::find($relatedAgents[0]);
         return $selectedAgent;
     }
 }
