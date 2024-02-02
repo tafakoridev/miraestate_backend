@@ -105,6 +105,23 @@ class AuctionController extends Controller
         return json_encode(['msg' => "درخواست پایان مزایده ثبت شد"], JSON_UNESCAPED_UNICODE);;
     }
 
+  
+    public function AuctionEndCanceling(Request $request)
+    {
+        $user = $request->user();
+        if(!$user) throw new Exception("Error Processing Request", 1);
+        $id = $request->id;
+        $auction = Auction::find($id);
+        $auction->is_active = 2;
+        
+        Purpose::where(['user_id' => $auction->winner_id, 'purposeable_id' => $id])->delete();
+        $auction->winner_id = null;
+        $auction->save();
+
+        return json_encode(['msg' => "درخواست رد برنده مناقصه  ثبت شد"], JSON_UNESCAPED_UNICODE);;
+
+    }
+
     public function TenderEndAdmin(Request $request)
     {
         $user = User::find($request->user_id);

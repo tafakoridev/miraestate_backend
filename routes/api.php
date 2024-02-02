@@ -96,11 +96,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/tenders/purpose/send', [TenderController::class, 'Purpose']);
     Route::post('/tenders/pay/fee', [TenderController::class, 'PayFee']);
     Route::post('/tenders/client/set/end', [TenderController::class, 'TenderEnd']);
+    Route::post('/tenders/client/set/endcanceling', [TenderController::class, 'TenderEndCanceling']);
 
     Route::post('/auctions/purpose/send', [AuctionController::class, 'Purpose']);
     Route::post('/auctions/purpose/accept', [AuctionController::class, 'PurposeAccept']);
     Route::post('/auctions/pay/fee', [AuctionController::class, 'PayFee']);
     Route::post('/auctions/client/set/end', [AuctionController::class, 'AuctionEnd']);
+    Route::post('/auctions/client/set/endcanceling', [AuctionController::class, 'AuctionEndCanceling']);
 
 
     Route::put('/users/update/{id}', [UserController::class, 'update']);

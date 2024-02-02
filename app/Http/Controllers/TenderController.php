@@ -113,6 +113,20 @@ class TenderController extends Controller
         return json_encode(['msg' => "درخواست پایان مناقصه ثبت شد"], JSON_UNESCAPED_UNICODE);;
     }
 
+    public function TenderEndCanceling(Request $request)
+    {
+        $user = $request->user();
+        if(!$user) throw new Exception("Error Processing Request", 1);
+        $id = $request->id;
+        $tender = Tender::find($id);
+        $tender->is_active = 2;
+        Purpose::where(['user_id' => $tender->winner_id, 'purposeable_id' => $id])->delete();
+        $tender->winner_id = null;
+        $tender->save();
+      
+        return json_encode(['msg' => "درخواست رد برنده مناقصه  ثبت شد"], JSON_UNESCAPED_UNICODE);;
+    }
+
     public function TenderEndAdmin(Request $request)
     {
         $user = User::find($request->user_id);
