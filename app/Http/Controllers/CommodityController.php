@@ -59,7 +59,7 @@ class CommodityController extends Controller
 
     public function indexAdminCartable()
     {
-        $commodities = Commodity::with(['city', 'category', 'agent.agent', 'user'])
+        $commodities = Commodity::with(['city', 'category', 'agent.agent','agentof', 'user'])
             ->whereNotNull('agent_id')
             ->orderBy("id", 'DESC')
             ->get();

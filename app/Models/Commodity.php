@@ -30,6 +30,11 @@ class Commodity extends Model
         return $this->morphOne(AgentDesk::class, 'agentable');
     }
     
+    public function agentof()
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
+    
     public function user()
     {
         return $this->belongsTo(User::class);
