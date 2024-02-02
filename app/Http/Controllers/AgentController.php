@@ -97,7 +97,7 @@ class AgentController extends Controller
         $commoditiesIds = Commodity::whereNotIn('id', $agentDesksIds)->get();
         $asirAgents = array_values(array_unique($commoditiesIds->pluck('agent_id')->all()));
         $userIds = User::whereHas('information', function ($query) {
-            $query->where('profile_photo_url', '=', '/profileplaceholder.png');
+            $query->where(['profile_photo_url' => '/profileplaceholder.png'])->orWhere(['is_active' => 'deactive']);
         })->pluck('id')->toArray();
 
         $numericAsir = [];
