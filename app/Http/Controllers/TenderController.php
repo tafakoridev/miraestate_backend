@@ -148,7 +148,6 @@ class TenderController extends Controller
         $tender->is_active = 3;
         $tender->save();
         $price = $tender->price * $percent;
-        return $price;
         $wallet->deposit($price);
         return json_encode(['msg' => "هزینه با موفقیت به کیف پول ها پرداخت شد"], JSON_UNESCAPED_UNICODE);;
     }

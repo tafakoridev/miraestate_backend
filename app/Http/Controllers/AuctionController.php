@@ -142,7 +142,8 @@ class AuctionController extends Controller
         }
         $auction->is_active = 3;
         $auction->save();
-        $wallet->deposit($auction->price * $percent);
+        $price = $auction->price * $percent;
+        $wallet->deposit($price);
         return json_encode(['msg' => "هزینه با موفقیت به کیف پول ها پرداخت شد"], JSON_UNESCAPED_UNICODE);;
     }
 
