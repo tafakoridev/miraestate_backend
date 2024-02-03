@@ -33,6 +33,18 @@ class CommodityController extends Controller
         return response(['commodities' => $commodities], Response::HTTP_OK);
     }
 
+    public function indexNoAgent()
+    {
+        $commodities = Commodity::with(['city', 'category', 'user'])
+            // ->where('expired_at', '>', now()) // Retrieve records where expired_at is in the future
+           
+            ->where('published', '1') // Retrieve records where expired_at is in the future
+            ->orWhere('published', '2') // Retrieve records where expired_at is in the future
+            ->orderBy("id", 'DESC')
+            ->get();
+        return response(['commodities' => $commodities], Response::HTTP_OK);
+    }
+
     public function adminChangePublish(Request $request, $id)
     {
         Commodity::where('id', $id)->update(['published' => 2, 'price'=> $request->price]);
@@ -61,6 +73,15 @@ class CommodityController extends Controller
     {
         $commodities = Commodity::with(['city', 'category', 'agent.agent', 'agentof', 'user'])
             ->whereNotNull('agent_id')
+            ->orderBy("id", 'DESC')
+            ->get();
+        return response(['commodities' => $commodities], Response::HTTP_OK);
+    }
+
+    public function indexAdminCartableNoAgent()
+    {
+        $commodities = Commodity::with(['city', 'category', 'user'])
+            ->whereNull('agent_id')
             ->orderBy("id", 'DESC')
             ->get();
         return response(['commodities' => $commodities], Response::HTTP_OK);
@@ -296,5 +317,71 @@ class CommodityController extends Controller
         }
 
         return response(['success' => "کارشناسی شما به $agent->name سپرده شد."], Response::HTTP_CREATED);
+    }
+
+    public function storeExCommodity(Request $request)
+    {
+        $user = $request->user();
+        if(!$user) throw new Exception("Error Processing Request", 1);
+        
+     //   $wallet = new WalletService($user);
+       // $balance = $wallet->getBalance();
+        $validatedData = $request->validate([
+            'title' => 'string|max:255',
+            'description' => 'string',
+            'price' => '',
+            'local' => '',
+            'fields' => '',
+            'category_id' => 'exists:categories,id',
+            'city_id' => 'exists:cities,id',
+            'pictures.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:8048',
+        ]);
+
+
+        $validatedData['user_id'] = $user->id;
+      //  $agent = AgentController::bestAgent($validatedData['category_id']);
+
+        // if (!$agent) {
+        //     return json_encode(['error' => "کارشناس مرتبط برای  شما پیدا نشد، با پشتیبانی تماس بگیرید"], JSON_UNESCAPED_UNICODE);
+        // }
+
+        $category = Category::find($validatedData['category_id']);
+       
+        // if ($category->price > $balance) {
+        //     return json_encode(['error' => "مبلغ کیف پول شما کمتر از هزینه کارشناسی است! لطفا کیف پول خود را شارژ نمایید."], JSON_UNESCAPED_UNICODE);
+        // }
+        // $wallet->withdraw($category->price);
+        // $agent_id = $agent->id;
+
+        $commodity = Commodity::create([
+            'user_id' => $validatedData['user_id'],
+            'category_id' => $validatedData['category_id'],
+            'title' => $validatedData['title'],
+            'description' => $validatedData['description'],
+            'price' => $validatedData['price'],
+            'city_id' => $validatedData['city_id'],
+            'agent_id' => null,
+            'local' => $validatedData['local'],
+            'picture' => "empty",
+            'fields' => $validatedData['fields'],
+            'published' => 1,
+            'expired_at' => Carbon::now()->addDays(30),
+            'accepted' => 1,
+        ]);
+
+        // Handle pictures
+        if ($request->hasFile('pictures')) {
+            $picturesPath = [];
+
+            foreach ($request->file('pictures') as $index => $picture) {
+                $path = $picture->store('commodity_pictures', 'public');
+                $picturesPath[] = '/storage/' . $path;
+            }
+
+            // Save picture paths to the commodity
+            $commodity->update(['picture' => json_encode($picturesPath)]);
+        }
+
+        return response(['success' => "آگهی شما ثبت شد پس از تایید منتشر می شود"], Response::HTTP_CREATED);
     }
 }

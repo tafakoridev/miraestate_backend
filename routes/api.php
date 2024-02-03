@@ -58,6 +58,7 @@ Route::get('/tenders', [TenderController::class, 'index']);
 
 Route::get('/tenders/{id}', [TenderController::class, 'show']);
 Route::get('/commodities', [CommodityController::class, 'index']);
+Route::get('/commodities/noagent/get/all', [CommodityController::class, 'indexNoAgent']);
 Route::get('/commodities/{id}', [CommodityController::class, 'show']);
 
 Route::get('/users/agents/{city_id}/list', [UserController::class, 'agentList']);
@@ -78,6 +79,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/client/commodities', [CommodityController::class, 'indexClientCartable']);
     Route::post('/client/rateagent', [AgentController::class, 'clientRateAgent']);
     Route::post('/commodities/store/ex', [CommodityController::class, 'storeEx']);
+    Route::post('/commodities/store/ex/commodity', [CommodityController::class, 'storeExCommodity']);
     Route::post('/set-photo-agent', [UserController::class, 'setPhotoAgent']);
     Route::post('/users/agents/desk', [UserController::class, 'AgentDesk']);
     Route::post('/users/agents/decline', [UserController::class, 'AgentDecline']);
@@ -137,6 +139,7 @@ Route::group(['middleware' => ['admin', 'auth:sanctum']], function () {
     Route::post('/savetocategory/{id}', [CategoryController::class, 'saveFieldsToCategory']);
     Route::post('/admin/commodities/{id}', [CommodityController::class, 'adminChangePublish']);
     Route::get('/admin/commodities', [CommodityController::class, 'indexAdminCartable']);
+    Route::get('/admin/commodities/noagent/get/list', [CommodityController::class, 'indexAdminCartableNoAgent']);
     Route::post('/admin/commodity/agent/accept', [CommodityController::class, 'AcceptByAdmin']);
     Route::get('/admin/comments', [AgentController::class, 'getAllRowsWithCommentAndRate']);
     Route::get('/tenders/byadmin/list', [TenderController::class, 'indexUnPublished']);
