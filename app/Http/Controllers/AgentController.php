@@ -45,8 +45,7 @@ class AgentController extends Controller
         $user = $request->user();
         $agentDesk = AgentDesk::where(['agentable_id' => $request->id])->first();
         $commodity = Commodity::where('user_id', $user->id)->where('id', $request->id)->count();
-        if ($commodity)
-        {
+        if ($commodity) {
             $agentDesk->comment = $request->comment;
             $agentDesk->rate = $request->rate;
             $agentDesk->save();
@@ -58,9 +57,9 @@ class AgentController extends Controller
     function getAllRowsWithCommentAndRate()
     {
         $comments = AgentDesk::whereNotNull('comment')
-        ->whereNotNull('rate')
-        ->with('agent')
-        ->get();
+            ->whereNotNull('rate')
+            ->with('agent')
+            ->get();
         return $comments;
     }
 
@@ -101,15 +100,15 @@ class AgentController extends Controller
         })->pluck('id')->toArray();
 
         $numericAsir = [];
-        foreach($asirAgents as $agentasir) {
-            if(is_numeric($agentasir))
-            array_push($numericAsir, $agentasir);
-    }
+        foreach ($asirAgents as $agentasir) {
+            if (is_numeric($agentasir))
+                array_push($numericAsir, $agentasir);
+        }
         $numericAsir = array_merge($userIds, $numericAsir);
 
         $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->whereNotIn('expertiese_id', $numericAsir)->get()->pluck('expertiese_id');
         $relatedAgents = array_values(array_unique($relatedAgents->all()));
-      
+
         $rates = [];
 
         foreach ($relatedAgents as $agentId) {
@@ -129,7 +128,66 @@ class AgentController extends Controller
             $selectedAgent = User::find($selected['id']);
             return $selectedAgent;
         }
+
+        return AgentController::bestAgent2($categoryId);
+    }
+
+
+
+
+    static function bestAgent2($categoryId)
+    {
+        $commoditiesIds = Commodity::select('agent_id')
+        ->selectRaw('COUNT(*) as commodity_count')
+        ->groupBy('agent_id')
+        ->orderBy('commodity_count')
+        ->get();
+        $asirAgents = array_values(array_unique($commoditiesIds->pluck('agent_id')->all()));
+        $userIds = User::whereHas('information', function ($query) {
+            $query->where(['profile_photo_url' => '/profileplaceholder.png'])->orWhere(['is_active' => 'deactive']);
+        })->pluck('id')->toArray();
+        
+        
+        $numericAsir = [];
+        foreach ($asirAgents as $agentasir) {
+            if (is_numeric($agentasir))
+            array_push($numericAsir, $agentasir);
+    }
+    $numericAsir = array_merge($userIds, $numericAsir);
+    
+    $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->whereIn('expertiese_id', $numericAsir)->get()->pluck('expertiese_id');
+    $relatedAgents = array_values(array_unique($relatedAgents->all()));
+    $rates = [];
+    $commodityIds = Commodity::select('agent_id')
+    ->selectRaw('COUNT(*) as commodity_count')
+    ->whereIn('agent_id', $relatedAgents)
+    ->groupBy('agent_id')
+    ->orderBy('commodity_count')
+    ->get();
+    $relatedAgents = array_values(array_unique($commodityIds->pluck('agent_id')->all()));
+    
+        
+        foreach ($relatedAgents as $agentId) {
+            $rate = AgentController::agentRate($agentId);
+            $rates[] = ["id" => $agentId, "rate" => (int) $rate];
+        }
        
+        
+        $compareByRate = function ($a, $b) {
+            return $b['rate'] <=> $a['rate'];
+        };
+
+        $selected = null;
+        // Use usort without returning its result
+        usort($rates, $compareByRate);
+       
+        if (count($rates))
+            $selected = $rates[0];
+        if ($selected) {
+            $selectedAgent = User::find($selected['id']);
+            return $selectedAgent;
+        }
+
         $selectedAgent = null;
         // $relatedAgents = AgentExpertise::where(['field_type' => 'App\Models\Category', 'field_id' => $categoryId])->get()->pluck('expertiese_id');
         // if (!empty($relatedAgents[0]))
